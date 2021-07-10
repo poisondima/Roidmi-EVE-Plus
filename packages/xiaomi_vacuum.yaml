@@ -253,7 +253,7 @@ xiaomi_vacuum:
       trigger:
         - platform: state
           entity_id: vacuum_status_fix
-          to: 7
+          to: '7'
       action:
         - delay: '00:00:05'
         - service: script.turn_on
