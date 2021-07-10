@@ -163,6 +163,8 @@ xiaomi_vacuum:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
         vacuum_volume:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','speaker.volume') }}"
+        vacuum_auto_boost:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.auto_boost') }}"
         vacuum_cleaning_time:
           value_template: "{{ (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}}"
         vacuum_total_cleaning_time:
@@ -247,7 +249,7 @@ xiaomi_vacuum:
             target:
               - !secret telegram_bot_chat_id_poison
               - !secret telegram_bot_chat_id_sasha
-              
+
     # Ошибка с пылесосом
     - alias: 'vacuum_show_error'
       trigger:
@@ -271,7 +273,7 @@ xiaomi_vacuum:
             target:
               - !secret telegram_bot_chat_id_poison
               - !secret telegram_bot_chat_id_sasha
-            
+
   script:
     # скачать карту с облака
     vacuum_download_map:
@@ -293,6 +295,6 @@ xiaomi_vacuum:
           data:
             entity_id: camera.xiaomi_cloud_map_extractor
 
-
-
-
+            
+            
+            
