@@ -1,0 +1,274 @@
+xiaomi_vacuum:
+  # roidmi.vacuum.v60 (Roidmi EVE Plus)
+  camera:
+    - platform: xiaomi_cloud_map_extractor
+      host: !secret xiaomi_vacuum_host
+      token: !secret xiaomi_vacuum_token
+      username: !secret xiaomi_cloud_username
+      password: !secret xiaomi_cloud_password
+      #store_map: true
+      force_api: roidmi
+      country: "cn"
+      colors:
+        color_map_inside: [32, 115, 185]
+        color_map_outside: [230, 233, 238] #цвета снаружи карты
+        color_map_wall: [91, 96, 99] #цвет стен
+        color_map_wall_v2: [93, 109, 126]
+        color_grey_wall: [93, 109, 126]
+        color_path: [255, 255, 255]
+        color_goto_path: [0, 255, 0]
+        color_predicted_path: [255, 255, 0, 0]
+        color_zones: [0xAD, 0xD8, 0xFF, 0x8F]
+        color_zones_outline: [0xAD, 0xD8, 0xFF]
+        color_virtual_walls: [255, 0, 0]
+        color_no_go_zones: [255, 33, 55, 127]
+        color_no_go_zones_outline: [255, 0, 0]
+        color_no_mop_zones: [163, 130, 211, 127]
+        color_no_mop_zones_outline: [163, 130, 211]
+        color_charger: [0, 255, 0]
+        color_robo: [65, 65, 235]
+        color_unknown: [0, 0, 0]
+        color_scan: [0xDF, 0xDF, 0xDF]
+      draw:
+        - charger
+        - path
+        - goto_path
+        - predicted_path
+        - no_go_zones
+        - no_mopping_zones
+        - vacuum_position
+        - virtual_walls
+        #- zones
+  #    texts:
+  #      - text: "Room 1"
+  #        x: 25
+  #        y: 25
+  #        color: [125, 20, 213]
+  #      - text: "Room 2"
+  #        x: 25
+  #        y: 75
+  #        color: [125, 20, 213, 127]
+  #        font_size: 25
+  #    map_transformation:
+  #      #scale: 1
+  #      #rotate: 0
+  #      trim:
+  #        top: 20
+  #        bottom: 18
+  #        left: 25
+  #        right: 20
+      sizes:
+        charger_radius: 3.5
+        vacuum_radius: 3.5
+      attributes:
+        - calibration_points
+        - charger
+        - goto
+        - goto_path
+        - goto_predicted_path
+        - image
+        - map_name
+        #- no_go_areas
+        #- no_mopping_areas
+        - obstacles
+        - path
+        - room_numbers
+        - rooms
+        - vacuum_position
+        - vacuum_room
+        - walls
+        - zones
+      scan_interval:
+        seconds: 10
+      auto_update: false
+      
+  sensor:
+    - platform: template
+      sensors:
+        vacuum_operation:
+          friendly_name: 'Операция'
+          value_template: 'Операция'
+        vacuum_accessories:
+          friendly_name: 'Время работы'
+          value_template: 'Время работы'
+        vacuum_status_fix:
+          friendly_name: 'Статус пылесоса'
+          value_template: >
+            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status')  %}
+            {% if val == 1 %}
+              ?
+            {% elif val == 2 %}
+              ?
+            {% elif val == 3 %}
+              Пауза
+            {% elif val == 4 %}
+              Уборка всей квартиры
+            {% elif val == 5 %}
+              Возвращение к док-станции
+            {% elif val == 6 %}
+              Идут зарядка
+            {% elif val == 7 %}
+              Ошибка
+            {% elif val == 8 %}
+              ?
+            {% elif val == 9 %}
+              У док-станции
+            {% else %}
+              state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status')
+            {% endif %}
+        #  icon_template: >
+        #    {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status')  %}
+        #    {% if val == 9 %}
+        #      mdi:battery-charging
+        #    {% elif val == 6 %}
+        #      mdi:move-resize
+        #    {% elif val == 'Returning home' %}
+        #      mdi:keyboard-return
+        #    {% elif val == 'Idle' %}
+        #      mdi:dots-horizontal
+        #    {% elif val == 'Paused' %}
+        #      mdi:pause-circle
+        #    {% else %}
+        #      mdi:help-circle
+        #    {% endif %}
+        vacuum_fan_speed:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','fan_speed') }}"
+        vacuum_status:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status') }}"
+        vacuum_fault:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault') }}"
+        vacuum_mode:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') }}"
+        vacuum_sweep_type:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type') }}"
+        vacuum_on:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') }}"
+        vacuum_sweep_mode:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') }}"
+        vacuum_work_station_freq:
+          value_template: >
+            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq')  %}
+            {% if val == 1 %}
+              Каждый раз
+            {% elif val == 2 %}
+              Каждый второй
+            {% elif val == 3 %}
+              Каждый третий
+            {% else %}
+              state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq')
+            {% endif %}
+        vacuum_water_level:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level') }}"
+        vacuum_station_type:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
+        vacuum_volume:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','speaker.volume') }}"
+        vacuum_cleaning_time:
+          value_template: "{{ (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}}"
+        vacuum_total_cleaning_time:
+          value_template: "{{ (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}}"
+        vacuum_cleaned_area:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_area') }}"
+        vacuum_total_cleaned_area:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_areas') }}"
+        vacuum_cleaning_count:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_counts') }}"
+
+  binary_sensor:
+    - platform: template
+      sensors:
+        vacuum_mop:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.mop') }}"
+        vacuum_double_clean:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.double_clean') }}"
+        vacuum_edge_sweep:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.edge_sweep') }}"
+        vacuum_led_switch:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.led_switch') }}"
+        vacuum_lidar_collision:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.lidar_collision') }}"
+        vacuum_station_key:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_key') }}"
+        vacuum_station_led:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_led') }}"
+        vacuum_mute:
+          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','speaker.mute') }}"
+          
+  automation:
+    # Пылесос начал уборку
+    - alias: 'vacuum_start_cleaning'
+      trigger:
+        - platform: state
+          entity_id: sensor.vacuum_status
+          from: '5'
+          to: '6'
+       # - platform: state
+       #   entity_id: sensor.vacuum_status
+       #   from: 'idle'
+       #   to: 'cleaning'
+      action:
+        - service: script.turn_on
+          entity_id: script.telegram_send_message
+          data:
+            variables:
+              emoji: "\U0001F9F9"
+              message: 'Пылесос начал уборку'
+              target:
+                - !secret telegram_bot_chat_id_poison
+                - !secret telegram_bot_chat_id_sasha
+              sound: "auto"
+
+    # Пылесос закончил уборку
+    - alias: 'vacuum_end_cleaning'
+      trigger:
+        - platform: state
+          entity_id: sensor.vacuum_status
+          from: '6'
+          to: '9'
+        #- platform: state
+        #  entity_id: vacuum.xiaomi_vacuum_cleaner
+        #  to: 'returning to dock'
+        #- platform: state
+        #  entity_id: vacuum.xiaomi_vacuum_cleaner
+        #  to: 'returning'
+      action:
+        - service: script.turn_on
+          data:
+            entity_id: script.vacuum_download_map
+        - delay: '00:00:30'
+        - service: camera.snapshot
+          data_template:
+            entity_id: 'camera.xiaomi_cloud_map_extractor'
+            filename: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
+        - service: telegram_bot.send_photo
+          data_template:
+            file: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
+            caption: "\U00002705 Пылесос убрал {{states('sensor.vacuum_cleaned_area')}} м² за {{states('sensor.vacuum_cleaning_time')}} минут."
+            target:
+              - !secret telegram_bot_chat_id_poison
+              - !secret telegram_bot_chat_id_sasha
+
+  script:
+    # скачать карту с облака
+    vacuum_download_map:
+      alias: "Скачать карту с облака"
+      sequence:
+        - service: homeassistant.update_entity
+          data:
+            entity_id: camera.xiaomi_cloud_map_extractor
+        - delay: '00:00:02'
+        - service: homeassistant.update_entity
+          data:
+            entity_id: camera.xiaomi_cloud_map_extractor
+        - delay: '00:00:02'
+        - service: homeassistant.update_entity
+          data:
+            entity_id: camera.xiaomi_cloud_map_extractor
+        - delay: '00:00:02'
+        - service: homeassistant.update_entity
+          data:
+            entity_id: camera.xiaomi_cloud_map_extractor
+
+
+
+
