@@ -260,6 +260,7 @@
           - binary_sensor.vacuum_mop
           - binary_sensor.vacuum_double_clean
           - binary_sensor.vacuum_edge_sweep
+          - binary_sensor.vacuum_auto_boost
           - sensor.vacuum_volume
           - binary_sensor.vacuum_mute
           - binary_sensor.vacuum_led_switch
