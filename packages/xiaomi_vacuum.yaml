@@ -247,7 +247,31 @@ xiaomi_vacuum:
             target:
               - !secret telegram_bot_chat_id_poison
               - !secret telegram_bot_chat_id_sasha
-
+              
+    # Ошибка с пылесосом
+    - alias: 'vacuum_show_error'
+      trigger:
+        - platform: state
+          entity_id: vacuum_status_fix
+          to: 7
+      action:
+        - delay: '00:00:05'
+        - service: script.turn_on
+          data:
+            entity_id: script.vacuum_download_map
+        - delay: '00:00:30'
+        - service: camera.snapshot
+          data_template:
+            entity_id: 'camera.xiaomi_cloud_map_extractor'
+            filename: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
+        - service: telegram_bot.send_photo
+          data_template:
+            file: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
+            caption: "\U000026A0 С пылесосом проблема, ошибка №{{states('sensor.vacuum_fault')}}"
+            target:
+              - !secret telegram_bot_chat_id_poison
+              - !secret telegram_bot_chat_id_sasha
+            
   script:
     # скачать карту с облака
     vacuum_download_map:
