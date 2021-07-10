@@ -68,7 +68,7 @@ sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3:
 sensor.vacuum_work_station_freq:
   friendly_name: 'Выбрасывать мусор'
   icon: mdi:delete
-sensor.vacuum_auto_boost:
+binary_sensor.vacuum_auto_boost:
   friendly_name: 'Режим наддува ковра'
   icon: mdi:rug
 binary_sensor.vacuum_station_key:
@@ -96,5 +96,3 @@ sensor.vacuum_total_cleaned_area:
 sensor.vacuum_cleaning_count:
   friendly_name: 'Количество уборок'
   icon_template: 'mdi:robot-vacuum'
-  
-  
