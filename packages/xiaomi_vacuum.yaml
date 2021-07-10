@@ -252,7 +252,7 @@ xiaomi_vacuum:
     - alias: 'vacuum_show_error'
       trigger:
         - platform: state
-          entity_id: vacuum_status_fix
+          entity_id: sensor.vacuum_status
           to: '7'
       action:
         - delay: '00:00:05'
