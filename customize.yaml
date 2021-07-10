@@ -27,7 +27,7 @@ sensor.vacuum_fault:
   friendly_name: 'Номер ошибки'
   icon: mdi:alert-circle
 sensor.vacuum_mode:
-  friendly_name: '?'
+  friendly_name: 'mode'
   #icon: mdi:alert-circle
 binary_sensor.vacuum_mop:
   friendly_name: 'Контейнер с водой'
@@ -67,16 +67,16 @@ sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3:
   icon: mdi:calendar-clock
 sensor.vacuum_work_station_freq:
   friendly_name: 'Выбрасывать мусор'
-  icon: mdi:radar
-custom.auto_boost:
+  icon: mdi:delete
+sensor.vacuum_auto_boost:
   friendly_name: 'Режим наддува ковра'
-  icon: mdi:radar
+  icon: mdi:rug
 binary_sensor.vacuum_station_key:
   friendly_name: 'Статус дисплея при касании'
-  icon: mdi:radar
+  icon: mdi:account-arrow-right
 sensor.vacuum_water_level:
   friendly_name: 'Уровень воды'
-  icon: mdi:radar
+  icon: mdi:waves
 sensor.vacuum_cleaning_time:
   friendly_name: 'Время последней уборки'
   unit_of_measurement: 'мин.'
@@ -96,3 +96,5 @@ sensor.vacuum_total_cleaned_area:
 sensor.vacuum_cleaning_count:
   friendly_name: 'Количество уборок'
   icon_template: 'mdi:robot-vacuum'
+  
+  
