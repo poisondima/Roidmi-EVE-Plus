@@ -106,7 +106,7 @@ xiaomi_vacuum:
             {% elif val == 5 %}
               Возвращение к док-станции
             {% elif val == 6 %}
-              Идут зарядка
+              Идет зарядка
             {% elif val == 7 %}
               Ошибка
             {% elif val == 8 %}
@@ -114,7 +114,7 @@ xiaomi_vacuum:
             {% elif val == 9 %}
               У док-станции
             {% else %}
-              state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status')
+              Нет связи
             {% endif %}
         #  icon_template: >
         #    {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status')  %}
@@ -145,6 +145,7 @@ xiaomi_vacuum:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') }}"
         vacuum_sweep_mode:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') }}"
+        # есть значения 0, 1, 8
         vacuum_work_station_freq:
           value_template: >
             {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq')  %}
@@ -199,11 +200,12 @@ xiaomi_vacuum:
   automation:
     # Пылесос начал уборку
     - alias: 'vacuum_start_cleaning'
+      mode: queued
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
-          from: '5'
-          to: '6'
+          from: '9'
+          to: '4'
        # - platform: state
        #   entity_id: sensor.vacuum_status
        #   from: 'idle'
@@ -222,11 +224,12 @@ xiaomi_vacuum:
 
     # Пылесос закончил уборку
     - alias: 'vacuum_end_cleaning'
+      mode: queued
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
-          from: '6'
-          to: '9'
+          from: '4'
+          to: '5'
         #- platform: state
         #  entity_id: vacuum.xiaomi_vacuum_cleaner
         #  to: 'returning to dock'
@@ -252,6 +255,7 @@ xiaomi_vacuum:
 
     # Ошибка с пылесосом
     - alias: 'vacuum_show_error'
+      mode: queued
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
@@ -273,6 +277,23 @@ xiaomi_vacuum:
             target:
               - !secret telegram_bot_chat_id_poison
               - !secret telegram_bot_chat_id_sasha
+              
+    # Отсылка статусов
+    - alias: 'vacuum_notify'
+      mode: queued
+      trigger:
+        - platform: state
+          entity_id: sensor.vacuum_status
+      action:
+        - service: script.turn_on
+          entity_id: script.telegram_send_message
+          data:
+            variables:
+              emoji: "\U0001F9F9"
+              message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }}. Статус пылесоса - {{states('vacuum.vacuum_cleaner_robot_cleaner')}}"
+              target:
+                - !secret telegram_bot_chat_id_poison
+              sound: "auto"
 
   script:
     # скачать карту с облака
