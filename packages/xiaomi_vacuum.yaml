@@ -102,7 +102,7 @@ xiaomi_vacuum:
             {% elif val == 3 %}
               Пауза
             {% elif val == 4 %}
-              Уборка всей квартиры
+              Уборка
             {% elif val == 5 %}
               Возвращение к док-станции
             {% elif val == 6 %}
@@ -113,6 +113,10 @@ xiaomi_vacuum:
               ?
             {% elif val == 9 %}
               У док-станции
+            {% elif val == 10 %}
+              ?
+            {% elif val == 11 %}
+              ?
             {% else %}
               Нет связи
             {% endif %}
@@ -136,7 +140,53 @@ xiaomi_vacuum:
         vacuum_status:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status') }}"
         vacuum_fault:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault') }}"
+          value_template: >
+            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')  %}
+            {% if (val == 0) or (val == 'None') %}
+              Нет ошибки
+            {% elif val == 1 %}
+              Проверьте, оранжевую башню расстояния, не заблокированна ли она
+            {% elif val == 2 %}
+              Проверьте, не заблокированы ли колеса и попробуйте переместить в другое место
+            {% elif val == 3 %}
+              Проверьте, датчик отслеживания высоты
+            {% elif val == 4 %}
+              Извлеките и очистите главную щетку
+            {% elif val == 5 %}
+              Очистите боковую щетку
+            {% elif val == 6 %}
+              Проверьте, не заблокировано ли переднее колесо
+            {% elif val == 7 %}
+              Переустановите контейнер для пыли + резервуар для воды
+            {% elif val == 8 %}
+              Уровень заряда слишком низок, зарядите аккумулятор
+            {% elif val == 9 %}
+              Заряд не поступает, Проверьте, правильно ли подключен основной блок к пылесборнику
+            {% elif val == 10 %}
+              Температура аккумуляторного блока слишком высока или слишком низка, повторите попытку позже
+            {% elif val == 11 %}
+              Проверьте, датчик отслеживания стен
+            {% elif val == 12 %}
+              Переместите робота на проскую, горизонтальную поверхность
+            {% elif val == 13 %}
+              Сбой вентилятора
+            {% elif val == 14 %}
+              Проверьте, что оранжевая башня не зажата сверху
+            {% elif val == 15 %}
+              Переместите робота из запрещенной зоны и запустите его
+            {% elif val == 16 %}
+              Не удается вернуться к зарядной станции. Устраните все препятствия рядом с зарядной станцией
+            {% elif val == 17 %}
+              Пылевой мешок отсутствует
+            {% elif val == 18 %}
+              Пылевой мешок заполнен
+            {% elif val == 19 %}
+              Очистите контейнер для пыли + резервуар для воды
+            {% elif val == 20 %}
+              Очистите фильтр
+            {% else %}
+              Ошибки нет в списке
+            {% endif %}
         vacuum_mode:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') }}"
         vacuum_sweep_type:
@@ -228,8 +278,8 @@ xiaomi_vacuum:
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
-          from: '4'
-          to: '5'
+          from: '5'
+          to: '6'
         #- platform: state
         #  entity_id: vacuum.xiaomi_vacuum_cleaner
         #  to: 'returning to dock'
@@ -273,7 +323,7 @@ xiaomi_vacuum:
         - service: telegram_bot.send_photo
           data_template:
             file: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
-            caption: "\U000026A0 С пылесосом проблема, ошибка №{{states('sensor.vacuum_fault')}}"
+            caption: "\U000026A0 С пылесосом проблема, ошибка №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}, {{states('sensor.vacuum_fault')}}"
             target:
               - !secret telegram_bot_chat_id_poison
               - !secret telegram_bot_chat_id_sasha
@@ -284,6 +334,9 @@ xiaomi_vacuum:
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
+      condition:
+        - condition: template
+          value_template: "{% if states('vacuum.vacuum_cleaner_robot_cleaner') == 'unavailable' %}False{% else %}True{% endif %}"
       action:
         - service: script.turn_on
           entity_id: script.telegram_send_message
