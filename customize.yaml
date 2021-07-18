@@ -10,10 +10,6 @@ sensor.vacuum_cleaner_battery_battery_level:
 sensor.vacuum_cleaner_battery_charging_state:
   friendly_name: 'Статус станции'
   icon: 'mdi:state-machine'
-sensor.vacuum_volume:
-  friendly_name: 'Уровень громкости'
-  icon: 'mdi:volume-high'
-  unit_of_measurement: '%'
 binary_sensor.vacuum_mute:
   friendly_name: 'Режим без звука'
   icon: 'mdi:volume-off'
@@ -26,12 +22,6 @@ sensor.vacuum_status_fix:
 sensor.vacuum_fan_speed:
   friendly_name: 'Скорость всасывания'
   icon: 'mdi:speedometer'
-binary_sensor.vacuum_double_clean:
-  friendly_name: 'Уборка x2'
-  icon: 'mdi:map-marker-distance'
-binary_sensor.vacuum_edge_sweep:
-  friendly_name: 'Y-образное мытье'
-  icon: 'mdi:transit-detour'
 sensor.vacuum_fault:
   friendly_name: 'Ошибка'
   icon: 'mdi:alert-circle'
@@ -41,15 +31,6 @@ sensor.vacuum_mode:
 binary_sensor.vacuum_mop:
   friendly_name: 'Контейнер с водой'
   icon: 'mdi:cup-water'
-binary_sensor.vacuum_station_led:
-  friendly_name: 'Подсветка дисплея'
-  icon: 'mdi:lightbulb-on-outline'
-binary_sensor.vacuum_led_switch:
-  friendly_name: 'Подсветка кнопки'
-  icon: 'mdi:alarm-light'
-binary_sensor.vacuum_lidar_collision:
-  friendly_name: 'Радар столкновений'
-  icon: 'mdi:radar'
 sensor.vacuum_cleaner_filter_filter_life_level:
   friendly_name: 'Фильтр HEPA'
   icon: 'mdi:percent-outline'
@@ -74,18 +55,6 @@ sensor.vacuum_cleaner_brush_cleaner_brush_life_level_3:
 sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3:
   friendly_name: 'Датчики'
   icon: 'mdi:calendar-clock'
-sensor.vacuum_work_station_freq:
-  friendly_name: 'Выбрасывать мусор'
-  icon: 'mdi:delete'
-binary_sensor.vacuum_auto_boost:
-  friendly_name: 'Режим наддува ковра'
-  icon: 'mdi:rug'
-binary_sensor.vacuum_station_key:
-  friendly_name: 'Статус дисплея при касании'
-  icon: 'mdi:account-arrow-right'
-sensor.vacuum_water_level:
-  friendly_name: 'Использование воды'
-  icon: 'mdi:waves'
 sensor.vacuum_cleaning_time:
   friendly_name: 'Время последней уборки'
   unit_of_measurement: 'мин.'
