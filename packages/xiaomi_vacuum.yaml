@@ -1,5 +1,9 @@
 xiaomi_vacuum:
   # roidmi.vacuum.v60 (Roidmi EVE Plus)
+  xiaomi_miot:
+    username: !secret xiaomi_cloud_username
+    password: !secret xiaomi_cloud_password
+    # server_country: cn
   camera:
     - platform: xiaomi_cloud_map_extractor
       host: !secret xiaomi_vacuum_host
@@ -98,7 +102,7 @@ xiaomi_vacuum:
             {% if val == 1 %}
               ?
             {% elif val == 2 %}
-              ?
+              Ожидание
             {% elif val == 3 %}
               Пауза
             {% elif val == 4 %}
@@ -145,45 +149,45 @@ xiaomi_vacuum:
             {% if (val == 0) or (val == 'None') %}
               Нет ошибки
             {% elif val == 1 %}
-              Проверьте, оранжевую башню расстояния, не заблокированна ли она
+              1 - Возможно - Проверьте, оранжевую башню расстояния, не заблокированна ли она
             {% elif val == 2 %}
-              Проверьте, не заблокированы ли колеса и попробуйте переместить в другое место
+              2 - Возможно - Проверьте, не заблокированы ли колеса и попробуйте переместить в другое место
             {% elif val == 3 %}
-              Проверьте, датчик отслеживания высоты
+              3 - Возможно - Проверьте, датчик отслеживания высоты
             {% elif val == 4 %}
-              Извлеките и очистите главную щетку
+              4 - Возможно - Извлеките и очистите главную щетку
             {% elif val == 5 %}
-              Очистите боковую щетку
+              5 - Возможно - Очистите боковую щетку
             {% elif val == 6 %}
-              Проверьте, не заблокировано ли переднее колесо
+              6 - Возможно - Проверьте, не заблокировано ли переднее колесо
             {% elif val == 7 %}
-              Переустановите контейнер для пыли + резервуар для воды
+              7 - Возможно - Проверьте, что оранжевая башня не зажата сверху
             {% elif val == 8 %}
-              Уровень заряда слишком низок, зарядите аккумулятор
+              8 - Возможно - Уровень заряда слишком низок, зарядите аккумулятор
             {% elif val == 9 %}
-              Заряд не поступает, Проверьте, правильно ли подключен основной блок к пылесборнику
+              9 - Возможно - Заряд не поступает, Проверьте, правильно ли подключен основной блок к пылесборнику
             {% elif val == 10 %}
-              Температура аккумуляторного блока слишком высока или слишком низка, повторите попытку позже
+              10 - Возможно - Температура аккумуляторного блока слишком высока или слишком низка, повторите попытку позже
             {% elif val == 11 %}
-              Проверьте, датчик отслеживания стен
+              11 - Возможно - Проверьте, датчик отслеживания стен
             {% elif val == 12 %}
-              Переместите робота на проскую, горизонтальную поверхность
+              12 - Возможно - Переместите робота на проскую, горизонтальную поверхность
             {% elif val == 13 %}
-              Сбой вентилятора
+              13 - Возможно - Сбой вентилятора
             {% elif val == 14 %}
-              Проверьте, что оранжевая башня не зажата сверху
+              14 - Переустановите контейнер для пыли + резервуар для воды
             {% elif val == 15 %}
-              Переместите робота из запрещенной зоны и запустите его
+              15 - Возможно - Переместите робота из запрещенной зоны и запустите его
             {% elif val == 16 %}
-              Не удается вернуться к зарядной станции. Устраните все препятствия рядом с зарядной станцией
+              16 - Возможно - Не удается вернуться к зарядной станции. Устраните все препятствия рядом с зарядной станцией
             {% elif val == 17 %}
-              Пылевой мешок отсутствует
+              17 - Возможно - Пылевой мешок отсутствует
             {% elif val == 18 %}
-              Пылевой мешок заполнен
+              18 - Возможно - Пылевой мешок заполнен
             {% elif val == 19 %}
-              Очистите контейнер для пыли + резервуар для воды
+              19 - Недостаточно воды в баке
             {% elif val == 20 %}
-              Очистите фильтр
+              20 - Возможно - Очистите фильтр
             {% else %}
               Ошибки нет в списке
             {% endif %}
@@ -209,7 +213,19 @@ xiaomi_vacuum:
               state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq')
             {% endif %}
         vacuum_water_level:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level') }}"
+          value_template: >
+            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level')  %}
+            {% if val == 0 %}
+              Без воды
+            {% elif val == 1 %}
+              Минимальное кол-во воды
+            {% elif val == 2 %}
+              Среднее кол-во воды
+            {% elif val == 3 %}
+              Максимальное кол-во воды
+            {% else %}
+              state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level')
+            {% endif %}
         vacuum_station_type:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
         vacuum_volume:
@@ -256,10 +272,6 @@ xiaomi_vacuum:
           entity_id: sensor.vacuum_status
           from: '9'
           to: '4'
-       # - platform: state
-       #   entity_id: sensor.vacuum_status
-       #   from: 'idle'
-       #   to: 'cleaning'
       action:
         - service: script.turn_on
           entity_id: script.telegram_send_message
@@ -308,8 +320,10 @@ xiaomi_vacuum:
       mode: queued
       trigger:
         - platform: state
-          entity_id: sensor.vacuum_status
-          to: '7'
+          entity_id: sensor.vacuum_fault
+      condition:
+        condition: template
+        value_template: "{% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault',0) %}False{% else %}True{% endif %}"
       action:
         - delay: '00:00:05'
         - service: script.turn_on
@@ -334,19 +348,21 @@ xiaomi_vacuum:
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
-      condition:
-        - condition: template
-          value_template: "{% if states('vacuum.vacuum_cleaner_robot_cleaner') == 'unavailable' %}False{% else %}True{% endif %}"
       action:
-        - service: script.turn_on
-          entity_id: script.telegram_send_message
-          data:
-            variables:
-              emoji: "\U0001F9F9"
-              message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }}. Статус пылесоса - {{states('vacuum.vacuum_cleaner_robot_cleaner')}}"
-              target:
-                - !secret telegram_bot_chat_id_poison
-              sound: "auto"
+        - choose:
+          - conditions:
+            - condition: template
+              value_template: "{% if (trigger.to_state.state == '2') or (trigger.to_state.state == '3') or (trigger.to_state.state == '4') or (trigger.to_state.state == '5') or (trigger.to_state.state == '6') or (trigger.to_state.state == '7') or (trigger.to_state.state == '9') %}False{% else %}True{% endif %}"
+            sequence:
+            - service: script.turn_on
+              entity_id: script.telegram_send_message
+              data:
+                variables:
+                  emoji: "\U0001F9F9"
+                  message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }}. Статус пылесоса - {{states('vacuum.vacuum_cleaner_robot_cleaner')}}"
+                  target:
+                    - !secret telegram_bot_chat_id_poison
+                  sound: "auto"
 
   script:
     # скачать карту с облака
