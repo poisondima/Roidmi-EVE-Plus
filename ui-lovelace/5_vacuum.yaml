@@ -246,7 +246,7 @@
           - sensor.vacuum_on
           - sensor.vacuum_sweep_mode
           - sensor.vacuum_sweep_type
-          - sensor.vacuum_water_level
+          - sensor.vacuum_station_type
       - type: entities
         title: 'Датчики пылесоса'
         show_header_toggle: false
@@ -258,6 +258,7 @@
           - sensor.vacuum_fault
          # - sensor.vacuum_fan_speed
           - binary_sensor.vacuum_mop
+          - sensor.vacuum_water_level
           - binary_sensor.vacuum_double_clean
           - binary_sensor.vacuum_edge_sweep
           - binary_sensor.vacuum_auto_boost
@@ -277,7 +278,6 @@
           - sensor.vacuum_work_station_freq
           - binary_sensor.vacuum_station_key
           - binary_sensor.vacuum_station_led
-          - sensor.vacuum_station_type
       - type: entities
         title: 'Расходные материалы'
         show_header_toggle: false
