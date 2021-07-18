@@ -199,37 +199,8 @@ xiaomi_vacuum:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') }}"
         vacuum_sweep_mode:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') }}"
-        # есть значения 0, 1, 8
-        vacuum_work_station_freq:
-          value_template: >
-            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq')  %}
-            {% if val == 1 %}
-              Каждый раз
-            {% elif val == 2 %}
-              Каждый второй
-            {% elif val == 3 %}
-              Каждый третий
-            {% else %}
-              state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq')
-            {% endif %}
-        vacuum_water_level:
-          value_template: >
-            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level')  %}
-            {% if val == 0 %}
-              Без воды
-            {% elif val == 1 %}
-              Минимальное кол-во воды
-            {% elif val == 2 %}
-              Среднее кол-во воды
-            {% elif val == 3 %}
-              Максимальное кол-во воды
-            {% else %}
-              state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level')
-            {% endif %}
         vacuum_station_type:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
-        vacuum_volume:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','speaker.volume') }}"
         vacuum_cleaning_time:
           value_template: "{{ (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}}"
         vacuum_total_cleaning_time:
@@ -246,23 +217,59 @@ xiaomi_vacuum:
       sensors:
         vacuum_mop:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.mop') }}"
-        vacuum_double_clean:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.double_clean') }}"
-        vacuum_edge_sweep:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.edge_sweep') }}"
-        vacuum_led_switch:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.led_switch') }}"
-        vacuum_lidar_collision:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.lidar_collision') }}"
-        vacuum_station_key:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_key') }}"
-        vacuum_station_led:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_led') }}"
         vacuum_mute:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','speaker.mute') }}"
-        vacuum_auto_boost:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.auto_boost') }}"
-          
+
+  input_boolean:
+    vacuum_lidar_collision:
+      name: 'Радар столкновений'
+      icon: 'mdi:radar'
+    vacuum_led_switch:
+      name: 'Подсветка кнопки'
+      icon: 'mdi:alarm-light'
+    vacuum_auto_boost:
+      name: 'Режим наддува ковра'
+      icon: 'mdi:rug'
+    vacuum_double_clean:
+      name: 'Уборка x2'
+      icon: 'mdi:map-marker-distance'
+    vacuum_edge_sweep:
+      name: 'Y-образное мытье'
+      icon: 'mdi:transit-detour'
+    vacuum_station_key:
+      name: 'Статус дисплея при касании'
+      icon: 'mdi:account-arrow-right'
+    vacuum_station_led:
+      name: 'Подсветка дисплея'
+      icon: 'mdi:lightbulb-on-outline'
+
+  input_number:
+    vacuum_volume:
+      name: 'Уровень громкости'
+      icon: 'mdi:volume-high'
+      unit_of_measurement: '%'
+      min: 0
+      max: 100
+      step: 1
+
+  input_select:
+    vacuum_water_level:
+      name: 'Использование воды'
+      icon: 'mdi:waves'
+      options:
+       - Без воды
+       - Минимальное кол-во воды
+       - Среднее кол-во воды
+       - Максимальное кол-во воды
+    vacuum_work_station_freq:
+      name: 'Выбрасывать мусор'
+      icon: 'mdi:delete'
+      options:
+       - Не выбрасывать
+       - Каждый раз
+       - Каждый второй
+       - Каждый третий
+
   automation:
     # Пылесос начал уборку
     - alias: 'vacuum_start_cleaning'
@@ -364,6 +371,262 @@ xiaomi_vacuum:
                     - !secret telegram_bot_chat_id_poison
                   sound: "auto"
 
+    # получаем значения с пылесоса
+    - alias: vacuum_get_miot_property
+      mode: queued
+      trigger:
+        platform: state
+        entity_id: vacuum.vacuum_cleaner_robot_cleaner
+      action:
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.led_switch', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_led_switch
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.lidar_collision', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_lidar_collision
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.auto_boost', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_auto_boost
+        - service: input_number.set_value
+          entity_id: input_number.vacuum_volume
+          data_template:
+            value: '{{ state_attr("vacuum.vacuum_cleaner_robot_cleaner","speaker.volume") }}'
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.double_clean', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_double_clean
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'map.path_type', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_edge_sweep
+        - service: input_select.select_option
+          entity_id: input_select.vacuum_water_level
+          data_template:
+            option: >
+              {%- if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level',0) -%}
+                Без воды
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level',1) -%}
+                Минимальное кол-во воды
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level',2) -%}
+                Среднее кол-во воды
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.water_level',3) -%}
+                Максимальное кол-во воды
+              {%- else -%}
+              {%- endif -%}
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.station_key', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_station_key
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.station_led', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_station_led
+        - service: input_select.select_option
+          entity_id: input_select.vacuum_work_station_freq
+          data_template:
+            option: >
+              {%- if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq',0) -%}
+                Не выбрасывать
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq',1) -%}
+                Каждый раз
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq',2) -%}
+                Каждый второй
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.work_station_freq',3) -%}
+                Каждый третий
+              {%- else -%}
+              {%- endif -%}
+
+    # устанавливаем значения в пылесос
+    - alias: vacuum_set_miot_property_led_switch
+      mode: queued
+      trigger:
+        - platform: state
+          entity_id: input_boolean.vacuum_led_switch
+        - platform: state
+          entity_id: input_boolean.vacuum_lidar_collision
+        - platform: state
+          entity_id: input_boolean.vacuum_auto_boost
+        - platform: state
+          entity_id: input_number.vacuum_volume
+        - platform: state
+          entity_id: input_boolean.vacuum_double_clean
+        - platform: state
+          entity_id: input_boolean.vacuum_edge_sweep
+        - platform: state
+          entity_id: input_select.vacuum_water_level
+        - platform: state
+          entity_id: input_boolean.vacuum_station_key
+        - platform: state
+          entity_id: input_boolean.vacuum_station_led
+        - platform: state
+          entity_id: input_select.vacuum_work_station_freq
+      condition:
+        - condition: template
+          value_template: '{{ trigger.to_state.context.parent_id == none }}'
+      action:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_led_switch' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 22
+                    value: "{{ 0 if is_state('input_boolean.vacuum_led_switch', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_lidar_collision' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 23
+                    value: "{{ 0 if is_state('input_boolean.vacuum_lidar_collision', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_auto_boost' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 9
+                    value: "{{ 0 if is_state('input_boolean.vacuum_auto_boost', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_number.vacuum_volume' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 9
+                    piid: 1
+                    value: "{{states('input_number.vacuum_volume')|round(0)}}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_double_clean' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 20
+                    value: "{{ 0 if is_state('input_boolean.vacuum_double_clean', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_edge_sweep' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 13
+                    piid: 8
+                    value: "{{ 0 if is_state('input_boolean.vacuum_edge_sweep', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_select.vacuum_water_level' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 11
+                    value: >
+                       {%- if is_state("input_select.vacuum_water_level", "Без воды") -%}
+                         0
+                       {%- elif is_state("input_select.vacuum_water_level", "Минимальное кол-во воды") -%}
+                         1
+                       {%- elif is_state("input_select.vacuum_water_level", "Среднее кол-во воды") -%}
+                         2
+                       {%- elif is_state("input_select.vacuum_water_level", "Максимальное кол-во воды") -%}
+                         3
+                       {% else %}
+                       {% endif %}
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_station_key' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 24
+                    value: "{{ 0 if is_state('input_boolean.vacuum_station_key', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_station_led' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 25
+                    value: "{{ 0 if is_state('input_boolean.vacuum_station_led', 'off') else 1 }}"
+            - conditions:
+                - condition: template
+                  value_template: "{{ trigger.entity_id == 'input_select.vacuum_work_station_freq' }}"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 8
+                    piid: 2
+                    value: >
+                       {%- if is_state("input_select.vacuum_work_station_freq", "Не выбрасывать") -%}
+                         0
+                       {%- elif is_state("input_select.vacuum_work_station_freq", "Каждый раз") -%}
+                         1
+                       {%- elif is_state("input_select.vacuum_work_station_freq", "Каждый второй") -%}
+                         2
+                       {%- elif is_state("input_select.vacuum_work_station_freq", "Каждый третий") -%}
+                         3
+                       {% else %}
+                       {% endif %}
+
   script:
     # скачать карту с облака
     vacuum_download_map:
@@ -385,6 +648,3 @@ xiaomi_vacuum:
           data:
             entity_id: camera.xiaomi_cloud_map_extractor
 
-            
-            
-            
