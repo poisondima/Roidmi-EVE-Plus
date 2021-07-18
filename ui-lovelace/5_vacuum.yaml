@@ -239,15 +239,6 @@
             #type: "custom:secondaryinfo-entity-row"
             #secondary_info: "[[ camera.xiaomi_cloud_map_extractor.last_updated ]]"
       - type: entities
-        title: 'Датчики неизвестные'
-        show_header_toggle: false
-        entities:
-          - sensor.vacuum_mode
-          - sensor.vacuum_on
-          - sensor.vacuum_sweep_mode
-          - sensor.vacuum_sweep_type
-          - sensor.vacuum_station_type
-      - type: entities
         title: 'Датчики пылесоса'
         show_header_toggle: false
         entities:
@@ -290,6 +281,15 @@
           - sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3
           - sensor.vacuum_cleaner_filter_filter_life_level
           - sensor.vacuum_cleaner_filter_filter_left_time
+      - type: entities
+        title: 'Датчики неизвестные'
+        show_header_toggle: false
+        entities:
+          - sensor.vacuum_mode
+          - sensor.vacuum_on
+          - sensor.vacuum_sweep_mode
+          - sensor.vacuum_sweep_type
+          - sensor.vacuum_station_type
           
           
           
