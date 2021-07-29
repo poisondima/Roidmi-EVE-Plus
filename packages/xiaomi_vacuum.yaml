@@ -200,7 +200,7 @@ xiaomi_vacuum:
             {% elif val == 37 %}
               Сбой обновления прошивки из-за несоблюдения требований
             {% else %}
-              Неизвестная ошибка №{% val %}
+              Неизвестная ошибка №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}
             {% endif %}
         vacuum_mode:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') }}"
