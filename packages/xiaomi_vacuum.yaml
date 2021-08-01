@@ -160,7 +160,7 @@ xiaomi_vacuum:
             {% elif val == 13 %}
               Очистите пылесборник и фильтр или проверьте наличие установленного пылесборника и фильтра
             {% elif val == 14 %}
-              Извлеките пылесборник
+              Отсутствует пылесборник
             {% elif val == 15 %}
               Очистите пылесборник и фильтр
             {% elif val == 16 %}
@@ -209,7 +209,30 @@ xiaomi_vacuum:
         vacuum_on:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') }}"
         vacuum_sweep_mode:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') }}"
+          #value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') }}"
+          value_template: >
+            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode')  %}
+            {% if val == 0 %}
+              Уборка не запущена
+            {% elif val == 1 %}
+              Уборка всей квартиры
+            {% elif val == 2 %}
+              Уборка зоны
+            {% elif val == 3 %}
+              Локальная уборка
+            {% elif val == 4 %}
+              Движение к точки
+            {% elif val == 7 %}
+              smart
+            {% elif val == 8 %}
+              Уборка сегмента
+            {% elif val == 9 %}
+              depthTotal
+            {% elif val == 10 %}
+              Вдоль стен
+            {% else %}
+             Неизвестно
+            {% endif %}
         vacuum_station_type:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
         vacuum_cleaning_time:
@@ -289,6 +312,10 @@ xiaomi_vacuum:
         - platform: state
           entity_id: sensor.vacuum_status
           from: '9'
+          to: '4'
+        - platform: state
+          entity_id: sensor.vacuum_status
+          from: '6'
           to: '4'
       action:
         - service: script.turn_on
