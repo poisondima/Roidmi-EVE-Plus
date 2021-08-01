@@ -244,6 +244,7 @@
         entities:
           - sensor.vacuum_status
           - sensor.vacuum_status_fix
+          - sensor.vacuum_sweep_mode
          # - sensor.vacuum_cleaner_battery_battery_level
          # - sensor.vacuum_cleaning_count
           - sensor.vacuum_fault
@@ -287,7 +288,6 @@
         entities:
           - sensor.vacuum_mode
           - sensor.vacuum_on
-          - sensor.vacuum_sweep_mode
           - sensor.vacuum_sweep_type
           - sensor.vacuum_station_type
           
