@@ -19,6 +19,9 @@ sensor.vacuum_status:
 sensor.vacuum_status_fix:
   friendly_name: 'Статус пылесоса'
   icon: 'mdi:autorenew'
+sensor.vacuum_sweep_mode:
+  friendly_name: 'Тип уборки'
+  icon: 'mdi:format-list-bulleted-type'
 sensor.vacuum_fan_speed:
   friendly_name: 'Скорость всасывания'
   icon: 'mdi:speedometer'
