@@ -236,18 +236,30 @@
         - type: entities
           entities:
           - entity: script.vacuum_download_map
-            #type: "custom:secondaryinfo-entity-row"
-            #secondary_info: "[[ camera.xiaomi_cloud_map_extractor.last_updated ]]"
+      - type: entities
+        title: 'Уборка комнат'
+        show_header_toggle: false
+        entities:
+          - entity: script.vacuum_room1
+          - entity: script.vacuum_room2
+          - entity: script.vacuum_room3
+          - entity: script.vacuum_room4
+          - entity: script.vacuum_room5
+         # - entity: script.vacuum_room6
+         # - entity: script.vacuum_room7
+          - entity: script.vacuum_room8
       - type: entities
         title: 'Датчики пылесоса'
         show_header_toggle: false
         entities:
           - sensor.vacuum_status
           - sensor.vacuum_status_fix
+          - sensor.vacuum_fault
           - sensor.vacuum_sweep_mode
+          - sensor.vacuum_mode
+          - sensor.vacuum_sweep_type
          # - sensor.vacuum_cleaner_battery_battery_level
          # - sensor.vacuum_cleaning_count
-          - sensor.vacuum_fault
          # - sensor.vacuum_fan_speed
           - binary_sensor.vacuum_mop
           - input_select.vacuum_water_level
@@ -258,6 +270,7 @@
           - input_boolean.vacuum_lidar_collision
           - input_boolean.vacuum_led_switch
           - input_boolean.vacuum_auto_boost
+          - sensor.vacuum_on
          # - sensor.vacuum_cleaned_area
          # - sensor.vacuum_cleaning_time
          # - sensor.vacuum_total_cleaned_area
@@ -266,10 +279,11 @@
         title: 'Датчики станции'
         show_header_toggle: false
         entities:
-          - sensor.vacuum_cleaner_battery_charging_state
+          - sensor.vacuum_charging_state
           - input_select.vacuum_work_station_freq
           - input_boolean.vacuum_station_key
           - input_boolean.vacuum_station_led
+          - sensor.vacuum_station_type
       - type: entities
         title: 'Расходные материалы'
         show_header_toggle: false
@@ -282,14 +296,3 @@
           - sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3
           - sensor.vacuum_cleaner_filter_filter_life_level
           - sensor.vacuum_cleaner_filter_filter_left_time
-      - type: entities
-        title: 'Датчики неизвестные'
-        show_header_toggle: false
-        entities:
-          - sensor.vacuum_mode
-          - sensor.vacuum_on
-          - sensor.vacuum_sweep_type
-          - sensor.vacuum_station_type
-          
-          
-          
