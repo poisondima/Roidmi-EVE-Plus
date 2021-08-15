@@ -118,9 +118,9 @@ xiaomi_vacuum:
             {% elif val == 9 %}
               Батарея полностью заряжена
             {% elif val == 10 %}
-              Отключить
+              Выключен
             {% elif val == 11 %}
-              Пауза зарядки
+              Пауза поиск зарядной станции
             {% else %}
               Нет связи с пылесосом
             {% endif %}
@@ -134,7 +134,7 @@ xiaomi_vacuum:
             {% if (val == 0) or (val == None) %}
               Нет ошибки
             {% elif val == 1 %}
-              Батарея разряжена, начало зарядки
+              Батарея разряжена, поиск зарядки
             {% elif val == 2 %}
               Батарея разряжена, отключение
             {% elif val == 3 %}
@@ -203,17 +203,60 @@ xiaomi_vacuum:
               Неизвестная ошибка №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}
             {% endif %}
         vacuum_mode:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') }}"
-        vacuum_sweep_type:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type') }}"
-        vacuum_on:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') }}"
-        vacuum_sweep_mode:
-          #value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') }}"
           value_template: >
-            {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode')  %}
+            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') %}
             {% if val == 0 %}
-              Уборка не запущена
+              Подметать
+            {% elif val == 1 %}
+              Тихая
+            {% elif val == 2 %}
+              Средняя
+            {% elif val == 3 %}
+              Сильная
+            {% elif val == 4 %}
+              Максимальная скорость
+            {% else %}
+             Неизвестно
+            {% endif %}
+        vacuum_sweep_type:
+          value_template: >
+            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type') %}
+            {% if val == 0 %}
+              Подметать
+            {% elif val == 1 %}
+              Мойка
+            {% elif val == 2 %}
+              Подметать и мыть
+            {% else %}
+             Неизвестно
+            {% endif %}
+        vacuum_on:
+          value_template: >
+            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') %}
+            {% if val == 0 %}
+              Закрыто
+            {% elif val == 1 %}
+              Открыто
+            {% else %}
+             Неизвестно
+            {% endif %}
+        vacuum_charging_state:
+          value_template: >
+            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','battery.charging_state') %}
+            {% if val == 1 %}
+              Зарядка
+            {% elif val == 2 %}
+              Нет зарядки
+            {% elif val == 3 %}
+              Не требуется
+            {% else %}
+             Неизвестно
+            {% endif %}
+        vacuum_sweep_mode:
+          value_template: >
+            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') %}
+            {% if val == 0 %}
+              Ожидание
             {% elif val == 1 %}
               Уборка всей квартиры
             {% elif val == 2 %}
@@ -223,22 +266,22 @@ xiaomi_vacuum:
             {% elif val == 4 %}
               Движение к точки
             {% elif val == 7 %}
-              smart
+              Smart
             {% elif val == 8 %}
               Уборка сегмента
             {% elif val == 9 %}
-              depthTotal
+              DepthTotal
             {% elif val == 10 %}
-              Вдоль стен
+              Вдоль стены
             {% else %}
              Неизвестно
             {% endif %}
         vacuum_station_type:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
         vacuum_cleaning_time:
-          value_template: "{{ (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}}"
+          value_template: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}} {% endif %}"
         vacuum_total_cleaning_time:
-          value_template: "{{ (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}}"
+          value_template: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}} {% endif %}"
         vacuum_cleaned_area:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_area') }}"
         vacuum_total_cleaned_area:
@@ -335,14 +378,12 @@ xiaomi_vacuum:
       trigger:
         - platform: state
           entity_id: sensor.vacuum_status
-          from: '5'
-          to: '6'
-        #- platform: state
-        #  entity_id: vacuum.xiaomi_vacuum_cleaner
-        #  to: 'returning to dock'
-        #- platform: state
-        #  entity_id: vacuum.xiaomi_vacuum_cleaner
-        #  to: 'returning'
+          from: '4'
+          to: '5'
+        - platform: state
+          entity_id: sensor.vacuum_status
+          from: '4'
+          to: '9'
       action:
         - service: script.turn_on
           data:
@@ -398,26 +439,35 @@ xiaomi_vacuum:
        #       - !secret telegram_bot_chat_id_sasha
               
     # Отсылка статусов
-    #- alias: 'vacuum_notify'
-    #  mode: queued
-    #  trigger:
-    #    - platform: state
-    #      entity_id: sensor.vacuum_status
-    #  action:
-    #    - choose:
-    #      - conditions:
-    #        - condition: template
-    #          value_template: "{% if (trigger.to_state.state == '2') or (trigger.to_state.state == '3') or (trigger.to_state.state == '4') or (trigger.to_state.state == '5') or (trigger.to_state.state == '6') or (trigger.to_state.state == '7') or (trigger.to_state.state == '9') or is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %}False{% else %}True{% endif %}"
-    #        sequence:
-    #        - service: script.turn_on
-    #          entity_id: script.telegram_send_message
-    #          data:
-    #            variables:
-    #              emoji: "\U0001F9F9"
-    #              message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }}. Статус пылесоса - {{states('vacuum.vacuum_cleaner_robot_cleaner')}}"
-    #              target:
-    #                - !secret telegram_bot_chat_id_poison
-    #              sound: "auto"
+    - alias: 'vacuum_notify'
+      mode: queued
+      trigger:
+        - platform: state
+          entity_id: sensor.vacuum_status
+      action:
+        - service: script.turn_on
+          entity_id: script.telegram_send_message
+          data:
+            variables:
+              emoji: "\U0001F9F9"
+              message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }} ({{states('sensor.vacuum_status_fix')}})."
+              target:
+                - !secret telegram_bot_chat_id_poison
+              sound: "auto"
+        #- choose:
+        #  - conditions:
+        #    - condition: template
+        #      value_template: "is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %}False{% else %}True{% endif %}"
+        #    sequence:
+        #    - service: script.turn_on
+        #      entity_id: script.telegram_send_message
+        #      data:
+        #        variables:
+        #          emoji: "\U0001F9F9"
+        #          message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }}. Статус пылесоса - {{states('vacuum.vacuum_cleaner_robot_cleaner')}}"
+        #          target:
+        #            - !secret telegram_bot_chat_id_poison
+        #          sound: "auto"
 
     # получаем значения с пылесоса
     - alias: vacuum_get_miot_property
@@ -679,6 +729,8 @@ xiaomi_vacuum:
     # скачать карту с облака
     vacuum_download_map:
       alias: "Скачать карту с облака"
+      mode: single
+      icon: mdi:cloud-download-outline
       sequence:
         - service: homeassistant.update_entity
           data:
@@ -695,4 +747,116 @@ xiaomi_vacuum:
         - service: homeassistant.update_entity
           data:
             entity_id: camera.xiaomi_cloud_map_extractor
+
+    #уборка команты 1
+    vacuum_room1:
+      alias: "Зал"
+      mode: single
+      icon: mdi:sofa
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 14
+            aiid: 1
+            params: [2,"{\"mapId\":1626189155,\"segmentId\":[1]}"]
+
+    #уборка команты 2
+    vacuum_room2:
+      alias: "Коридор"
+      mode: single
+      icon: mdi:doorbell
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 14
+            aiid: 1
+            params: [2,"{\"mapId\":1626189155,\"segmentId\":[2]}"]
+
+    #уборка команты 3
+    vacuum_room3:
+      alias: "Детская"
+      mode: single
+      icon: mdi:desktop-classic
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 14
+            aiid: 1
+            params: [2,"{\"mapId\":1626189155,\"segmentId\":[3]}"]
+
+    #уборка команты 4
+    vacuum_room4:
+      alias: "Кухня"
+      mode: single
+      icon: mdi:silverware-variant
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 14
+            aiid: 1
+            params: [2,"{\"mapId\":1626189155,\"segmentId\":[4]}"]
+
+    #уборка команты 5
+    vacuum_room5:
+      alias: "Прихожая"
+      mode: single
+      icon: mdi:mirror
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 14
+            aiid: 1
+            params: [2,"{\"mapId\":1626189155,\"segmentId\":[5]}"]
+
+  #  #уборка команты 6
+  #  vacuum_room6:
+  #    alias: "Room 6"
+  #    mode: single
+  #    icon: mdi:sofa
+  #    sequence:
+  #      - service: xiaomi_miot.call_action
+  #        data:
+  #          entity_id: vacuum.vacuum_cleaner_robot_cleaner
+  #          did: !secret xiaomi_cloud_did
+  #          siid: 14
+  #          aiid: 1
+  #          params: [2,"{\"mapId\":1626189155,\"segmentId\":[6]}"]
+
+  #  #уборка команты 7
+  #  vacuum_room7:
+  #    alias: "Room 7"
+  #    mode: single
+  #    icon: mdi:sofa
+  #    sequence:
+  #      - service: xiaomi_miot.call_action
+  #        data:
+  #          entity_id: vacuum.vacuum_cleaner_robot_cleaner
+  #          did: !secret xiaomi_cloud_did
+  #          siid: 14
+  #          aiid: 1
+  #          params: [2,"{\"mapId\":1626189155,\"segmentId\":[7]}"]
+
+    #уборка команты 8
+    vacuum_room8:
+      alias: "Спальня"
+      mode: single
+      icon: mdi:bed
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 14
+            aiid: 1
+            params: [2,"{\"mapId\":1626189155,\"segmentId\":[8]}"]
 
