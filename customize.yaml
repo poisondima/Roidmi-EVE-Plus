@@ -7,8 +7,8 @@ vacuum.vacuum_cleaner_robot_cleaner:
 sensor.vacuum_cleaner_battery_battery_level:
   friendly_name: 'Уровень заряда'
   icon: 'mdi:battery'
-sensor.vacuum_cleaner_battery_charging_state:
-  friendly_name: 'Статус станции'
+sensor.vacuum_charging_state:
+  friendly_name: 'Состояние зарядки'
   icon: 'mdi:state-machine'
 binary_sensor.vacuum_mute:
   friendly_name: 'Режим без звука'
@@ -29,7 +29,13 @@ sensor.vacuum_fault:
   friendly_name: 'Ошибка'
   icon: 'mdi:alert-circle'
 sensor.vacuum_mode:
-  friendly_name: 'mode'
+  friendly_name: 'Мощность уборки'
+  #icon: 'mdi:alert-circle'
+sensor.vacuum_on:
+  friendly_name: 'Состояние переключателя'
+  #icon: 'mdi:alert-circle'
+sensor.vacuum_sweep_type:
+  friendly_name: 'Функция уборки'
   #icon: 'mdi:alert-circle'
 binary_sensor.vacuum_mop:
   friendly_name: 'Контейнер с водой'
