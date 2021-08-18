@@ -3,7 +3,7 @@ xiaomi_vacuum:
   xiaomi_miot:
     username: !secret xiaomi_cloud_username
     password: !secret xiaomi_cloud_password
-    # server_country: cn
+    server_country: cn
   camera:
     - platform: xiaomi_cloud_map_extractor
       host: !secret xiaomi_vacuum_host
@@ -439,35 +439,21 @@ xiaomi_vacuum:
        #       - !secret telegram_bot_chat_id_sasha
               
     # Отсылка статусов
-    - alias: 'vacuum_notify'
-      mode: queued
-      trigger:
-        - platform: state
-          entity_id: sensor.vacuum_status
-      action:
-        - service: script.turn_on
-          entity_id: script.telegram_send_message
-          data:
-            variables:
-              emoji: "\U0001F9F9"
-              message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }} ({{states('sensor.vacuum_status_fix')}})."
-              target:
-                - !secret telegram_bot_chat_id_poison
-              sound: "auto"
-        #- choose:
-        #  - conditions:
-        #    - condition: template
-        #      value_template: "is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %}False{% else %}True{% endif %}"
-        #    sequence:
-        #    - service: script.turn_on
-        #      entity_id: script.telegram_send_message
-        #      data:
-        #        variables:
-        #          emoji: "\U0001F9F9"
-        #          message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }}. Статус пылесоса - {{states('vacuum.vacuum_cleaner_robot_cleaner')}}"
-        #          target:
-        #            - !secret telegram_bot_chat_id_poison
-        #          sound: "auto"
+  #  - alias: 'vacuum_notify'
+  #    mode: queued
+  #    trigger:
+  #      - platform: state
+  #        entity_id: sensor.vacuum_status
+  #    action:
+  #      - service: script.turn_on
+  #        entity_id: script.telegram_send_message
+  #        data:
+  #          variables:
+  #            emoji: "\U0001F9F9"
+  #            message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }} ({{states('sensor.vacuum_status_fix')}})."
+  #            target:
+  #              - !secret telegram_bot_chat_id_poison
+  #            sound: "auto"
 
     # получаем значения с пылесоса
     - alias: vacuum_get_miot_property
