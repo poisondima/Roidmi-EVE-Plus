@@ -1,9 +1,9 @@
 # пылесос
 vacuum.vacuum_cleaner_robot_cleaner:
-  miot_cloud: true          # Enable miot cloud for entity (read, write, action)
-  # miot_cloud_write: true  # (Optional) Enable miot cloud (only write)
-  # miot_cloud_action: true # (Optional) Enable miot cloud (only action)
-  miot_local: true        # Force to read and write data in LAN
+  miot_local: true         # Force to read and write data in LAN
+  miot_cloud: false        # Enable miot cloud for entity (read, write, action)
+  #miot_cloud_write: true  # (Optional) Enable miot cloud (only write)
+  miot_cloud_action: true  # (Optional) Enable miot cloud (only action)
 sensor.vacuum_cleaner_battery_battery_level:
   friendly_name: 'Уровень заряда'
   icon: 'mdi:battery'
