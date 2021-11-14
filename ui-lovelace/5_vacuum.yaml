@@ -230,7 +230,7 @@
       - type: vertical-stack
         cards:
         - type: picture-glance
-          title: 'Карта пылесоса'
+          #title: 'Карта пылесоса'
           entities: []
           camera_image: camera.xiaomi_cloud_map_extractor
         - type: entities
@@ -252,7 +252,7 @@
         title: 'Датчики пылесоса'
         show_header_toggle: false
         entities:
-          - sensor.vacuum_status
+         # - sensor.vacuum_status
           - sensor.vacuum_status_fix
           - sensor.vacuum_fault
           - sensor.vacuum_sweep_mode
@@ -266,7 +266,7 @@
           - input_boolean.vacuum_double_clean
           - input_boolean.vacuum_edge_sweep
           - input_number.vacuum_volume
-          - binary_sensor.vacuum_mute
+          - input_boolean.vacuum_mute
           - input_boolean.vacuum_lidar_collision
           - input_boolean.vacuum_led_switch
           - input_boolean.vacuum_auto_boost
