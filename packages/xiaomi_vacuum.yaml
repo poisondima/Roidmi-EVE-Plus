@@ -294,8 +294,6 @@ xiaomi_vacuum:
       sensors:
         vacuum_mop:
           value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.mop') }}"
-        vacuum_mute:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','speaker.mute') }}"
 
   input_boolean:
     vacuum_lidar_collision:
@@ -319,6 +317,27 @@ xiaomi_vacuum:
     vacuum_station_led:
       name: 'Подсветка дисплея'
       icon: 'mdi:lightbulb-on-outline'
+    vacuum_mute:
+      name: 'Режим без звука'
+      icon: 'mdi:volume-off'
+    vacuum_room1:
+      name: 'Зал'
+      icon: 'mdi:sofa'
+    vacuum_room2:
+      name: 'Коридор'
+      icon: 'mdi:doorbell'
+    vacuum_room3:
+      name: 'Детская'
+      icon: 'mdi:desktop-classic'
+    vacuum_room4:
+      name: 'Кухня'
+      icon: 'mdi:silverware-variant'
+    vacuum_room5:
+      name: 'Прихожая'
+      icon: 'mdi:mirror'
+    vacuum_room8:
+      name: 'Спальня'
+      icon: 'mdi:bed'
 
   input_number:
     vacuum_volume:
@@ -421,39 +440,6 @@ xiaomi_vacuum:
                 - !secret telegram_bot_chat_id_poison
                 - !secret telegram_bot_chat_id_sasha
               sound: "auto"
-       # - delay: '00:00:05'
-       # - service: script.turn_on
-       #   data:
-       #     entity_id: script.vacuum_download_map
-       # - delay: '00:00:30'
-       # - service: camera.snapshot
-       #   data_template:
-       #     entity_id: 'camera.xiaomi_cloud_map_extractor'
-       #     filename: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
-       # - service: telegram_bot.send_photo
-       #   data_template:
-       #     file: '/config/www/xiaomi_vacuum_cleaner_map.jpg'
-       #     caption: "\U000026A0 С пылесосом проблема, ошибка №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}, {{states('sensor.vacuum_fault')}}"
-       #     target:
-       #       - !secret telegram_bot_chat_id_poison
-       #       - !secret telegram_bot_chat_id_sasha
-              
-#    # Отсылка статусов
-#    - alias: 'vacuum_notify'
-#      mode: queued
-#      trigger:
-#        - platform: state
-#          entity_id: sensor.vacuum_status
-#      action:
-#        - service: script.turn_on
-#          entity_id: script.telegram_send_message
-#          data:
-#            variables:
-#              emoji: "\U0001F9F9"
-#              message: "Статус пылесоса был {{ trigger.from_state.state }}, а теперь стал {{ trigger.to_state.state }} ({{states('sensor.vacuum_status_fix')}})."
-#              target:
-#                - !secret telegram_bot_chat_id_poison
-#              sound: "auto"
 
     # получаем значения с пылесоса
     - alias: vacuum_get_miot_property
@@ -461,6 +447,9 @@ xiaomi_vacuum:
       trigger:
         platform: state
         entity_id: vacuum.vacuum_cleaner_robot_cleaner
+      condition:
+        condition: template
+        value_template: "{% if states('vacuum.vacuum_cleaner_robot_cleaner') == 'unavailable' %}False{% else %}True{% endif %}"
       action:
         - service_template: >
             {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'custom.led_switch', 1) %}
@@ -536,6 +525,14 @@ xiaomi_vacuum:
             {% endif %}
           data:
             entity_id: input_boolean.vacuum_station_led
+        - service_template: >
+            {% if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner', 'speaker.mute', 1) %}
+              input_boolean.turn_on
+            {% else %}
+              input_boolean.turn_off
+            {% endif %}
+          data:
+            entity_id: input_boolean.vacuum_mute
         - service: input_select.select_option
           entity_id: input_select.vacuum_work_station_freq
           data_template:
@@ -552,37 +549,50 @@ xiaomi_vacuum:
               {%- endif -%}
 
     # устанавливаем значения в пылесос
-    - alias: vacuum_set_miot_property_led_switch
+    - alias: vacuum_set_miot_property
       mode: queued
       trigger:
         - platform: state
           entity_id: input_boolean.vacuum_led_switch
+          id: 'led_switch'
         - platform: state
           entity_id: input_boolean.vacuum_lidar_collision
+          id: 'lidar_collision'
         - platform: state
           entity_id: input_boolean.vacuum_auto_boost
+          id: 'auto_boost'
         - platform: state
           entity_id: input_number.vacuum_volume
+          id: 'volume'
         - platform: state
           entity_id: input_boolean.vacuum_double_clean
+          id: 'double_clean'
         - platform: state
           entity_id: input_boolean.vacuum_edge_sweep
+          id: 'edge_sweep'
         - platform: state
           entity_id: input_select.vacuum_water_level
+          id: 'water_level'
         - platform: state
           entity_id: input_boolean.vacuum_station_key
+          id: 'station_key'
         - platform: state
           entity_id: input_boolean.vacuum_station_led
+          id: 'station_led'
+        - platform: state
+          entity_id: input_boolean.vacuum_mute
+          id: 'mute'
         - platform: state
           entity_id: input_select.vacuum_work_station_freq
+          id: 'work_station_freq'
       condition:
         - condition: template
           value_template: '{{ trigger.to_state.context.parent_id == none }}'
       action:
         - choose:
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_led_switch' }}"
+                - condition: trigger
+                  id: "led_switch"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -592,8 +602,8 @@ xiaomi_vacuum:
                     piid: 22
                     value: "{{ 0 if is_state('input_boolean.vacuum_led_switch', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_lidar_collision' }}"
+                - condition: trigger
+                  id: "lidar_collision"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -603,8 +613,8 @@ xiaomi_vacuum:
                     piid: 23
                     value: "{{ 0 if is_state('input_boolean.vacuum_lidar_collision', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_auto_boost' }}"
+                - condition: trigger
+                  id: "auto_boost"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -614,8 +624,8 @@ xiaomi_vacuum:
                     piid: 9
                     value: "{{ 0 if is_state('input_boolean.vacuum_auto_boost', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_number.vacuum_volume' }}"
+                - condition: trigger
+                  id: "volume"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -625,8 +635,8 @@ xiaomi_vacuum:
                     piid: 1
                     value: "{{states('input_number.vacuum_volume')|round(0)}}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_double_clean' }}"
+                - condition: trigger
+                  id: "double_clean"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -636,8 +646,8 @@ xiaomi_vacuum:
                     piid: 20
                     value: "{{ 0 if is_state('input_boolean.vacuum_double_clean', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_edge_sweep' }}"
+                - condition: trigger
+                  id: "edge_sweep"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -647,8 +657,8 @@ xiaomi_vacuum:
                     piid: 8
                     value: "{{ 0 if is_state('input_boolean.vacuum_edge_sweep', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_select.vacuum_water_level' }}"
+                - condition: trigger
+                  id: "water_level"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -668,8 +678,8 @@ xiaomi_vacuum:
                        {% else %}
                        {% endif %}
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_station_key' }}"
+                - condition: trigger
+                  id: "station_key"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -679,8 +689,8 @@ xiaomi_vacuum:
                     piid: 24
                     value: "{{ 0 if is_state('input_boolean.vacuum_station_key', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_boolean.vacuum_station_led' }}"
+                - condition: trigger
+                  id: "station_led"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -690,8 +700,19 @@ xiaomi_vacuum:
                     piid: 25
                     value: "{{ 0 if is_state('input_boolean.vacuum_station_led', 'off') else 1 }}"
             - conditions:
-                - condition: template
-                  value_template: "{{ trigger.entity_id == 'input_select.vacuum_work_station_freq' }}"
+                - condition: trigger
+                  id: "mute"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 9
+                    piid: 2
+                    value: "{{ 0 if is_state('input_boolean.vacuum_mute', 'off') else 1 }}"
+            - conditions:
+                - condition: trigger
+                  id: "work_station_freq"
               sequence:
                 - service: xiaomi_miot.set_miot_property
                   data:
@@ -710,6 +731,34 @@ xiaomi_vacuum:
                          3
                        {% else %}
                        {% endif %}
+
+    # Включить режим ночь
+    - alias: 'vacuum_nigth_on'
+      trigger:
+        platform: time
+        at: "22:00:00"
+      action:
+        - service: xiaomi_miot.set_miot_property
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 9
+            piid: 2
+            value: "1"
+    
+    # Отключить режим ночь
+    - alias: 'vacuum_nigth_off'
+      trigger:
+        platform: time
+        at: "07:00:00"
+      action:
+        - service: xiaomi_miot.set_miot_property
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            did: !secret xiaomi_cloud_did
+            siid: 9
+            piid: 2
+            value: "0"
 
   script:
     # скачать карту с облака
@@ -817,4 +866,3 @@ xiaomi_vacuum:
             siid: 14
             aiid: 1
             params: [2,"{\"mapId\":1626189155,\"segmentId\":[8]}"]
-
