@@ -10,9 +10,6 @@ sensor.vacuum_cleaner_battery_battery_level:
 sensor.vacuum_charging_state:
   friendly_name: 'Состояние зарядки'
   icon: 'mdi:state-machine'
-binary_sensor.vacuum_mute:
-  friendly_name: 'Режим без звука'
-  icon: 'mdi:volume-off'
 sensor.vacuum_status:
   friendly_name: 'Режим работы'
   icon: 'mdi:state-machine'
