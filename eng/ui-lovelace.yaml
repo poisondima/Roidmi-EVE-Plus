@@ -1,0 +1,298 @@
+    title: 'Vacuum cleaner'
+    #panel: true
+    icon: mdi:robot-vacuum
+    cards:
+      - type: picture-elements
+        title: 'Roidmi EVE Plus'
+        image: '/local/roidmi-eve-plus.jpg'
+        elements:
+          - type: icon
+            icon: mdi:play
+            tap_action:
+              action: call-service
+              service: vacuum.start
+              service_data:
+                entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            style:
+             top: 95%
+             left: 25%
+             color: '#3090C7'
+          - type: icon
+            icon: mdi:pause
+            tap_action:
+              action: call-service
+              service: vacuum.pause
+              service_data:
+                entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            style:
+             top: 95%
+             left: 35%
+             color: '#3090C7'
+          - type: icon
+            icon: mdi:stop
+            tap_action:
+              action: call-service
+              service: vacuum.stop
+              service_data:
+                entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            style:
+             top: 95%
+             left: 45%
+             color: '#3090C7'
+          - type: icon
+            icon: mdi:home
+            tap_action:
+              action: call-service
+              service: vacuum.return_to_base
+              service_data:
+                entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            style:
+             top: 95%
+             left: 55%
+             color: '#3090C7'
+          - type: icon
+            icon: mdi:crosshairs
+            tap_action:
+              action: call-service
+              service: vacuum.clean_spot
+              service_data:
+                entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            style:
+             top: 95%
+             left: 65%
+             color: '#3090C7'
+          - type: icon
+            icon: mdi:bell-ring
+            tap_action:
+              action: call-service
+              service: vacuum.locate
+              service_data:
+                entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            style:
+             top: 95%
+             left: 75%
+             color: '#3090C7'
+          - type: state-label
+            entity: sensor.vacuum_operation
+            style:
+             top: 8%
+             left: 1%
+             color: rgb(255, 255, 255)
+             transform: translate(0%,-50%)
+             pointer-events: none
+             font-family: Trebuchet MS
+             font-size: 90%
+             font-weight: bold
+             border-color: rgb(34, 154, 210)
+             background-color: '#3090C7'
+             border-radius: 6px
+          - type: state-label
+            entity: sensor.vacuum_accessories
+            style:
+             top: 8%
+             right: 1%
+             color: rgb(255, 255, 255)
+             transform: translate(0%,-50%)
+             pointer-events: none
+             font-family: Trebuchet MS
+             font-size: 90%
+             font-weight: bold
+             border-color: rgb(34, 154, 210)
+             background-color: '#3090C7'
+             border-radius: 6px
+          - type: state-label
+            entity: vacuum.vacuum_cleaner_robot_cleaner
+            tap-action:
+              action: more-info
+            style:
+             top: 10%
+             right: 38%
+             color: rgb(255, 255, 255)
+             transform: translate(0%,-50%)
+             font-family: Trebuchet MS
+             font-size: 150%
+             font-weight: bold
+             border-color: rgb(34, 154, 210)
+             border-radius: 6px
+             background-color: '#cccccc'
+          - type: state-label
+            entity: sensor.vacuum_total_cleaned_area
+            prefix: "Total area: "
+            style:
+              top: 28%
+              right: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 76%
+              font-weight: bold
+              border-right-style: solid
+              border-color: rgb(34, 154, 210)
+          - type: state-label
+            entity: sensor.vacuum_total_cleaning_time
+            prefix: "Total time: "
+            style:
+              top: 38%
+              right: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 76%
+              font-weight: bold
+              border-right-style: solid
+              border-color: rgb(34, 154, 210)
+          - type: state-label
+            entity: sensor.vacuum_cleaned_area
+            prefix: "Area: "
+            style:
+              top: 48%
+              right: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 76%
+              font-weight: bold
+              border-right-style: solid
+              border-color: rgb(34, 154, 210)
+          - type: state-label
+            entity: sensor.vacuum_cleaning_time
+            prefix: "Time: "
+            style:
+              top: 58%
+              right: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 76%
+              font-weight: bold
+              border-right-style: solid
+              border-color: rgb(34, 154, 210)
+          - type: state-label
+            prefix: "Status: "
+            entity: sensor.vacuum_status_fix
+            style:
+              top: 28%
+              left: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 80%
+              font-weight: bold
+              border-left-style: solid
+              border-color: '#3090C7'
+          - type: state-label
+            prefix: "Charge: "
+            entity: sensor.vacuum_cleaner_battery_level
+            style:
+              top: 38%
+              left: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 80%
+              font-weight: bold
+              border-left-style: solid
+              border-color: rgb(34, 154, 210)
+          - type: state-label
+            prefix: "Speed: "
+            entity: sensor.vacuum_fan_speed
+            style:
+              top: 48%
+              left: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 80%
+              font-weight: bold
+              border-left-style: solid
+              border-color: rgb(34, 154, 210)
+          - type: state-label
+            entity: sensor.vacuum_cleaning_count
+            prefix: "Cleaning number: "
+            style:
+              top: 58%
+              left: 1%
+              color: '#000000'
+              transform: translate(0%,-50%)
+              pointer-events: none
+              font-family: Trebuchet MS
+              font-size: 80%
+              font-weight: bold
+              border-left-style: solid
+              border-color: rgb(34, 154, 210)
+      - type: vertical-stack
+        cards:
+        - type: picture-glance
+          #title: 'Vacuum cleaner map'
+          entities: []
+          camera_image: camera.xiaomi_cloud_map_extractor
+        - type: entities
+          entities:
+          - entity: script.vacuum_download_map
+      - type: entities
+        title: 'Room cleaning'
+        show_header_toggle: false
+        entities:
+          - entity: script.vacuum_room1
+          - entity: script.vacuum_room2
+          - entity: script.vacuum_room3
+          - entity: script.vacuum_room4
+          - entity: script.vacuum_room5
+         # - entity: script.vacuum_room6
+         # - entity: script.vacuum_room7
+          - entity: script.vacuum_room8
+      - type: entities
+        title: 'Vacuum cleaner sensors'
+        show_header_toggle: false
+        entities:
+         # - sensor.vacuum_status
+          - sensor.vacuum_status_fix
+          - sensor.vacuum_fault
+          - sensor.vacuum_sweep_mode
+          - sensor.vacuum_mode
+          - sensor.vacuum_sweep_type
+         # - sensor.vacuum_cleaner_battery_level
+         # - sensor.vacuum_cleaning_count
+         # - sensor.vacuum_fan_speed
+          - binary_sensor.vacuum_mop
+          - input_select.vacuum_water_level
+          - input_boolean.vacuum_double_clean
+          - input_boolean.vacuum_edge_sweep
+          - input_number.vacuum_volume
+          - input_boolean.vacuum_mute
+          - input_boolean.vacuum_lidar_collision
+          - input_boolean.vacuum_led_switch
+          - input_boolean.vacuum_auto_boost
+          - sensor.vacuum_on
+         # - sensor.vacuum_cleaned_area
+         # - sensor.vacuum_cleaning_time
+         # - sensor.vacuum_total_cleaned_area
+         # - sensor.vacuum_total_cleaning_time
+      - type: entities
+        title: 'Station sensors'
+        show_header_toggle: false
+        entities:
+          - sensor.vacuum_charging_state
+          - input_select.vacuum_work_station_freq
+          - input_boolean.vacuum_station_key
+          - input_boolean.vacuum_station_led
+          - sensor.vacuum_station_type
+      - type: entities
+        title: 'Expendable materials'
+        show_header_toggle: false
+        entities:
+          - sensor.vacuum_cleaner_brush_cleaner_brush_life_level
+          - sensor.vacuum_cleaner_brush_cleaner_brush_left_time
+          - sensor.vacuum_cleaner_brush_cleaner_brush_life_level_2
+          - sensor.vacuum_cleaner_brush_cleaner_brush_left_time_2
+          - sensor.vacuum_cleaner_brush_cleaner_brush_life_level_3
+          - sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3
+          - sensor.vacuum_cleaner_filter_filter_life_level
+          - sensor.vacuum_cleaner_filter_filter_left_time
