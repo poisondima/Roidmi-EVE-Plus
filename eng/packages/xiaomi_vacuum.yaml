@@ -88,6 +88,9 @@ xiaomi_vacuum:
     username: !secret xiaomi_cloud_username
     password: !secret xiaomi_cloud_password
     # server_country: cn
+    device_customizes:
+      roidmi.vacuum.v60:
+        exclude_miot_services: map
   camera:
     - platform: xiaomi_cloud_map_extractor
       host: !secret xiaomi_vacuum_host
