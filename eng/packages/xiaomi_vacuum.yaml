@@ -82,6 +82,10 @@ xiaomi_vacuum:
       sensor.vacuum_cleaning_count:
         friendly_name: 'Number of cleanings'
         icon: 'mdi:robot-vacuum'
+      sensor.vacuum_operation:
+        friendly_name: 'Operation'
+      sensor.vacuum_accessories:
+        friendly_name: 'Working time'
 
   # roidmi.vacuum.v60 (Roidmi EVE Plus)
   xiaomi_miot:
@@ -172,18 +176,15 @@ xiaomi_vacuum:
       scan_interval:
         seconds: 10
       auto_update: false
-      
-  sensor:
-    - platform: template
-      sensors:
-        vacuum_operation:
-          friendly_name: 'Operation'
-          value_template: 'Operation'
-        vacuum_accessories:
-          friendly_name: 'Working time'
-          value_template: 'Working time'
-        vacuum_status_fix:
-          value_template: >
+
+  template:
+    - sensor:
+        - name: "vacuum_operation"
+          state: 'Operation'
+        - name: "vacuum_accessories"
+          state: 'Working time'
+        - name: "vacuum_status_fix"
+          state:  >
             {% set val =  state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status')  %}
             {% if val == 1 %}
               Sleeping
@@ -210,12 +211,12 @@ xiaomi_vacuum:
             {% else %}
               Device offline
             {% endif %}
-        vacuum_fan_speed:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','fan_speed') }}"
-        vacuum_status:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status') }}"
-        vacuum_fault:
-          value_template: >
+        - name: "vacuum_fan_speed"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','fan_speed') }}"
+        - name: "vacuum_status"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.status') }}"
+        - name: "vacuum_fault"
+          state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')  %}
             {% if (val == 0) or (val == None) %}
               No Faults
@@ -288,8 +289,8 @@ xiaomi_vacuum:
             {% else %}
               Unknown error №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}
             {% endif %}
-        vacuum_mode:
-          value_template: >
+        - name: "vacuum_mode"
+          state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') %}
             {% if val == 0 %}
               Sweep
@@ -304,8 +305,8 @@ xiaomi_vacuum:
             {% else %}
               Unknown
             {% endif %}
-        vacuum_sweep_type:
-          value_template: >
+        - name: "vacuum_sweep_type"
+          state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type') %}
             {% if val == 0 %}
               Sweep
@@ -316,8 +317,8 @@ xiaomi_vacuum:
             {% else %}
               Unknown
             {% endif %}
-        vacuum_on:
-          value_template: >
+        - name: "vacuum_on"
+          state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') %}
             {% if val == 0 %}
               Close
@@ -326,8 +327,8 @@ xiaomi_vacuum:
             {% else %}
               Unknown
             {% endif %}
-        vacuum_charging_state:
-          value_template: >
+        - name: "vacuum_charging_state"
+          state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','battery.charging_state') %}
             {% if val == 1 %}
               Charging
@@ -338,8 +339,8 @@ xiaomi_vacuum:
             {% else %}
               Unknown
             {% endif %}
-        vacuum_sweep_mode:
-          value_template: >
+        - name: "vacuum_sweep_mode"
+          state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','sweep.sweep_mode') %}
             {% if val == 0 %}
               Waiting
@@ -362,24 +363,21 @@ xiaomi_vacuum:
             {% else %}
               Unknown
             {% endif %}
-        vacuum_station_type:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
-        vacuum_cleaning_time:
-          value_template: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}} {% endif %}"
-        vacuum_total_cleaning_time:
-          value_template: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}} {% endif %}"
-        vacuum_cleaned_area:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_area') }}"
-        vacuum_total_cleaned_area:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_areas') }}"
-        vacuum_cleaning_count:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_counts') }}"
-
-  binary_sensor:
-    - platform: template
-      sensors:
-        vacuum_mop:
-          value_template: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.mop') }}"
+        - name: "vacuum_station_type"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
+        - name: "vacuum_cleaning_time"
+          state: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}} {% endif %}"
+        - name: "vacuum_total_cleaning_time"
+          state: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}} {% endif %}"
+        - name: "vacuum_cleaned_area"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_area') }}"
+        - name: "vacuum_total_cleaned_area"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_areas') }}"
+        - name: "vacuum_cleaning_count"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_counts') }}"
+    - binary_sensor:
+        - name: "vacuum_mop"
+          state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.mop') }}"
 
   input_boolean:
     vacuum_lidar_collision:
@@ -952,3 +950,5 @@ xiaomi_vacuum:
             siid: 14
             aiid: 1
             params: [2,"{\"mapId\":1626189155,\"segmentId\":[8]}"]
+
+
