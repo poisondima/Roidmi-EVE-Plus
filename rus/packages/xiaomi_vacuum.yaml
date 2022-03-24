@@ -39,28 +39,28 @@ xiaomi_vacuum:
       binary_sensor.vacuum_mop:
         friendly_name: 'Контейнер с водой'
         icon: 'mdi:cup-water'
-      sensor.vacuum_cleaner_filter_filter_life_level:
+      sensor.vacuum_cleaner_filter_life_level:
         friendly_name: 'Фильтр HEPA'
         icon: 'mdi:percent-outline'
-      sensor.vacuum_cleaner_filter_filter_left_time:
+      sensor.vacuum_cleaner_filter_left_time:
         friendly_name: 'Фильтр HEPA'
         icon: 'mdi:calendar-clock'
-      sensor.vacuum_cleaner_brush_cleaner_brush_life_level:
+      sensor.vacuum_cleaner_brush_life_level:
         friendly_name: 'Щетка снизу'
         icon: 'mdi:percent-outline'
-      sensor.vacuum_cleaner_brush_cleaner_brush_left_time:
+      sensor.vacuum_cleaner_brush_left_time:
         friendly_name: 'Щетка снизу'
         icon: 'mdi:calendar-clock'
-      sensor.vacuum_cleaner_brush_cleaner_brush_life_level_2:
+      sensor.vacuum_cleaner_brush_life_level_2:
         friendly_name: 'Боковая щетка'
         icon: 'mdi:percent-outline'
-      sensor.vacuum_cleaner_brush_cleaner_brush_left_time_2:
+      sensor.vacuum_cleaner_brush_left_time_2:
         friendly_name: 'Боковая щетка'
         icon: 'mdi:calendar-clock'
-      sensor.vacuum_cleaner_brush_cleaner_brush_life_level_3:
+      sensor.vacuum_cleaner_brush_life_level_3:
         friendly_name: 'Датчики'
         icon: 'mdi:percent-outline'
-      sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3:
+      sensor.vacuum_cleaner_brush_left_time_3:
         friendly_name: 'Датчики'
         icon: 'mdi:calendar-clock'
       sensor.vacuum_cleaning_time:
@@ -950,5 +950,3 @@ xiaomi_vacuum:
             siid: 14
             aiid: 1
             params: [2,"{\"mapId\":1626189155,\"segmentId\":[8]}"]
-
-
