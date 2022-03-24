@@ -288,11 +288,11 @@
         title: 'Расходные материалы'
         show_header_toggle: false
         entities:
-          - sensor.vacuum_cleaner_brush_cleaner_brush_life_level
-          - sensor.vacuum_cleaner_brush_cleaner_brush_left_time
-          - sensor.vacuum_cleaner_brush_cleaner_brush_life_level_2
-          - sensor.vacuum_cleaner_brush_cleaner_brush_left_time_2
-          - sensor.vacuum_cleaner_brush_cleaner_brush_life_level_3
-          - sensor.vacuum_cleaner_brush_cleaner_brush_left_time_3
-          - sensor.vacuum_cleaner_filter_filter_life_level
-          - sensor.vacuum_cleaner_filter_filter_left_time
+          - sensor.vacuum_cleaner_brush_life_level
+          - sensor.vacuum_cleaner_brush_left_time
+          - sensor.vacuum_cleaner_brush_life_level_2
+          - sensor.vacuum_cleaner_brush_left_time_2
+          - sensor.vacuum_cleaner_brush_life_level_3
+          - sensor.vacuum_cleaner_brush_left_time_3
+          - sensor.vacuum_cleaner_filter_life_level
+          - sensor.vacuum_cleaner_filter_left_time
