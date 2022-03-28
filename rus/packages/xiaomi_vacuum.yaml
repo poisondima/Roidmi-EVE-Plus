@@ -366,9 +366,19 @@ xiaomi_vacuum:
         - name: "vacuum_station_type"
           state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.station_type') }}"
         - name: "vacuum_cleaning_time"
-          state: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}} {% endif %}"
+          state: >
+            {% if (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time') == None) %}
+              0
+            {% else %}
+              {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_time')/60)|round(1)}}
+            {% endif %}
         - name: "vacuum_total_cleaning_time"
-          state: "{% if is_state('vacuum.vacuum_cleaner_robot_cleaner', 'unavailable') %} 0 {% else %} {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}} {% endif %}"
+          state: >
+            {% if (state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time') == None) %}
+              0
+            {% else %}
+              {{(state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.total_clean_time')/60)|round(1)}}
+            {% endif %}
         - name: "vacuum_cleaned_area"
           state: "{{ state_attr('vacuum.vacuum_cleaner_robot_cleaner','custom.clean_area') }}"
         - name: "vacuum_total_cleaned_area"
