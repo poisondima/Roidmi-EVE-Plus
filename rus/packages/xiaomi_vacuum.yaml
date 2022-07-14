@@ -27,15 +27,9 @@ xiaomi_vacuum:
       sensor.vacuum_fault:
         friendly_name: 'Ошибка'
         icon: 'mdi:alert-circle'
-      sensor.vacuum_mode:
-        friendly_name: 'Мощность уборки'
-        #icon: 'mdi:alert-circle'
       sensor.vacuum_on:
         friendly_name: 'Состояние переключателя'
-        #icon: 'mdi:alert-circle'
-      sensor.vacuum_sweep_type:
-        friendly_name: 'Функция уборки'
-        #icon: 'mdi:alert-circle'
+        icon: 'mdi:nintendo-switch'
       binary_sensor.vacuum_mop:
         friendly_name: 'Контейнер с водой'
         icon: 'mdi:cup-water'
@@ -289,34 +283,6 @@ xiaomi_vacuum:
             {% else %}
               Неизвестная ошибка №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}
             {% endif %}
-        - name: "vacuum_mode"
-          state: >
-            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') %}
-            {% if val == 0 %}
-              Подметать
-            {% elif val == 1 %}
-              Тихая
-            {% elif val == 2 %}
-              Средняя
-            {% elif val == 3 %}
-              Сильная
-            {% elif val == 4 %}
-              Максимальная скорость
-            {% else %}
-             Неизвестно
-            {% endif %}
-        - name: "vacuum_sweep_type"
-          state: >
-            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type') %}
-            {% if val == 0 %}
-              Подметать
-            {% elif val == 1 %}
-              Мойка
-            {% elif val == 2 %}
-              Подметать и мыть
-            {% else %}
-             Неизвестно
-            {% endif %}
         - name: "vacuum_on"
           state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') %}
@@ -459,6 +425,22 @@ xiaomi_vacuum:
        - Каждый раз
        - Каждый второй
        - Каждый третий
+    vacuum_mode:
+      name: 'Мощность уборки'
+      icon: 'mdi:wind-power-outline'
+      options:
+       - Подметать
+       - Тихая
+       - Средняя
+       - Сильная
+       - Максимальная скорость
+    vacuum_sweep_type:
+      name: 'Тип уборки'
+      icon: 'mdi:vacuum-outline'
+      options:
+       - Подметать
+       - Мойка
+       - Подметать и мыть
 
   automation:
     # Пылесос начал уборку
@@ -641,6 +623,34 @@ xiaomi_vacuum:
                 Каждый третий
               {%- else -%}
               {%- endif -%}
+        - service: input_select.select_option
+          entity_id: input_select.vacuum_mode
+          data_template:
+            option: >
+              {%- if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',0) -%}
+                Подметать
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',1) -%}
+                Тихая
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',2) -%}
+                Средняя
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',3) -%}
+                Сильная
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',4) -%}
+                Максимальная скорость
+              {%- else -%}
+              {%- endif -%}
+        - service: input_select.select_option
+          entity_id: input_select.vacuum_sweep_type
+          data_template:
+            option: >
+              {%- if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type',0) -%}
+                Подметать
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type',1) -%}
+                Мойка
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type',2) -%}
+                Подметать и мыть
+              {%- else -%}
+              {%- endif -%}
 
     # устанавливаем значения в пылесос
     - alias: vacuum_set_miot_property
@@ -679,6 +689,12 @@ xiaomi_vacuum:
         - platform: state
           entity_id: input_select.vacuum_work_station_freq
           id: 'work_station_freq'
+        - platform: state
+          entity_id: input_select.vacuum_mode
+          id: 'vacuum_mode'
+        - platform: state
+          entity_id: input_select.vacuum_sweep_type
+          id: 'vacuum_sweep_type'
       condition:
         - condition: template
           value_template: '{{ trigger.to_state.context.parent_id == none }}'
@@ -823,6 +839,48 @@ xiaomi_vacuum:
                          2
                        {%- elif is_state("input_select.vacuum_work_station_freq", "Каждый третий") -%}
                          3
+                       {% else %}
+                       {% endif %}
+            - conditions:
+                - condition: trigger
+                  id: "vacuum_mode"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 2
+                    piid: 4
+                    value: >
+                       {%- if is_state("input_select.vacuum_mode", "Подметать") -%}
+                         0
+                       {%- elif is_state("input_select.vacuum_mode", "Тихая") -%}
+                         1
+                       {%- elif is_state("input_select.vacuum_mode", "Средняя") -%}
+                         2
+                       {%- elif is_state("input_select.vacuum_mode", "Сильная") -%}
+                         3
+                       {%- elif is_state("input_select.vacuum_mode", "Максимальная скорость") -%}
+                         4
+                       {% else %}
+                       {% endif %}
+            - conditions:
+                - condition: trigger
+                  id: "vacuum_sweep_type"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 2
+                    piid: 8
+                    value: >
+                       {%- if is_state("input_select.vacuum_sweep_type", "Подметать") -%}
+                         0
+                       {%- elif is_state("input_select.vacuum_sweep_type", "Мойка") -%}
+                         1
+                       {%- elif is_state("input_select.vacuum_sweep_type", "Подметать и мыть") -%}
+                         2
                        {% else %}
                        {% endif %}
 

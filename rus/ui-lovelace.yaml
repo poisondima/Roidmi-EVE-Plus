@@ -256,8 +256,8 @@
           - sensor.vacuum_status_fix
           - sensor.vacuum_fault
           - sensor.vacuum_sweep_mode
-          - sensor.vacuum_mode
-          - sensor.vacuum_sweep_type
+          - input_select.vacuum_mode
+          - input_select.vacuum_sweep_type
          # - sensor.vacuum_cleaner_battery_level
          # - sensor.vacuum_cleaning_count
          # - sensor.vacuum_fan_speed
