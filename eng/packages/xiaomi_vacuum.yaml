@@ -27,15 +27,9 @@ xiaomi_vacuum:
       sensor.vacuum_fault:
         friendly_name: 'Error'
         icon: 'mdi:alert-circle'
-      sensor.vacuum_mode:
-        friendly_name: 'Cleaning capacity'
-        #icon: 'mdi:alert-circle'
       sensor.vacuum_on:
         friendly_name: 'Switch state'
-        #icon: 'mdi:alert-circle'
-      sensor.vacuum_sweep_type:
-        friendly_name: 'Cleaning function'
-        #icon: 'mdi:alert-circle'
+        icon: 'mdi:nintendo-switch'
       binary_sensor.vacuum_mop:
         friendly_name: 'Water container'
         icon: 'mdi:cup-water'
@@ -289,34 +283,6 @@ xiaomi_vacuum:
             {% else %}
               Unknown error №{{state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.fault')}}
             {% endif %}
-        - name: "vacuum_mode"
-          state: >
-            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode') %}
-            {% if val == 0 %}
-              Sweep
-            {% elif val == 1 %}
-              Quiet
-            {% elif val == 2 %}
-              Standard
-            {% elif val == 3 %}
-              Power
-            {% elif val == 4 %}
-              MAX
-            {% else %}
-              Unknown
-            {% endif %}
-        - name: "vacuum_sweep_type"
-          state: >
-            {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type') %}
-            {% if val == 0 %}
-              Sweep
-            {% elif val == 1 %}
-              Mop
-            {% elif val == 2 %}
-              Mop And Sweep
-            {% else %}
-              Unknown
-            {% endif %}
         - name: "vacuum_on"
           state: >
             {% set val = state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.on') %}
@@ -459,6 +425,22 @@ xiaomi_vacuum:
        - Every time
        - Every second
        - Every third
+    vacuum_mode:
+      name: 'Cleaning power'
+      icon: 'mdi:wind-power-outline'
+      options:
+       - Sweep
+       - Silent
+       - Basic
+       - Strong
+       - Full Speed
+    vacuum_sweep_type:
+      name: 'Cleaning function'
+      icon: 'mdi:vacuum-outline'
+      options:
+       - Sweep
+       - Mop
+       - Mop And Sweep
 
   automation:
     # The vacuum cleaner started cleaning
@@ -641,6 +623,34 @@ xiaomi_vacuum:
                 Every third
               {%- else -%}
               {%- endif -%}
+        - service: input_select.select_option
+          entity_id: input_select.vacuum_mode
+          data_template:
+            option: >
+              {%- if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',0) -%}
+                Sweep
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',1) -%}
+                Silent
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',2) -%}
+                Basic
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',3) -%}
+                Strong
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.mode',4) -%}
+                Full Speed
+              {%- else -%}
+              {%- endif -%}
+        - service: input_select.select_option
+          entity_id: input_select.vacuum_sweep_type
+          data_template:
+            option: >
+              {%- if is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type',0) -%}
+                Sweep
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type',1) -%}
+                Mop
+              {%- elif is_state_attr('vacuum.vacuum_cleaner_robot_cleaner','vacuum.sweep_type',2) -%}
+                Mop And Sweep
+              {%- else -%}
+              {%- endif -%}
 
     # set the values in the vacuum cleaner
     - alias: vacuum_set_miot_property
@@ -679,6 +689,12 @@ xiaomi_vacuum:
         - platform: state
           entity_id: input_select.vacuum_work_station_freq
           id: 'work_station_freq'
+        - platform: state
+          entity_id: input_select.vacuum_mode
+          id: 'vacuum_mode'
+        - platform: state
+          entity_id: input_select.vacuum_sweep_type
+          id: 'vacuum_sweep_type'
       condition:
         - condition: template
           value_template: '{{ trigger.to_state.context.parent_id == none }}'
@@ -823,6 +839,48 @@ xiaomi_vacuum:
                          2
                        {%- elif is_state("input_select.vacuum_work_station_freq", "Every third") -%}
                          3
+                       {% else %}
+                       {% endif %}
+            - conditions:
+                - condition: trigger
+                  id: "vacuum_mode"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 2
+                    piid: 4
+                    value: >
+                       {%- if is_state("input_select.vacuum_mode", "Sweep") -%}
+                         0
+                       {%- elif is_state("input_select.vacuum_mode", "Silent") -%}
+                         1
+                       {%- elif is_state("input_select.vacuum_mode", "Basic") -%}
+                         2
+                       {%- elif is_state("input_select.vacuum_mode", "Strong") -%}
+                         3
+                       {%- elif is_state("input_select.vacuum_mode", "Full Speed") -%}
+                         4
+                       {% else %}
+                       {% endif %}
+            - conditions:
+                - condition: trigger
+                  id: "vacuum_sweep_type"
+              sequence:
+                - service: xiaomi_miot.set_miot_property
+                  data:
+                    entity_id: vacuum.vacuum_cleaner_robot_cleaner
+                    did: !secret xiaomi_cloud_did
+                    siid: 2
+                    piid: 8
+                    value: >
+                       {%- if is_state("input_select.vacuum_sweep_type", "Sweep") -%}
+                         0
+                       {%- elif is_state("input_select.vacuum_sweep_type", "Mop") -%}
+                         1
+                       {%- elif is_state("input_select.vacuum_sweep_type", "Mop And Sweep") -%}
+                         2
                        {% else %}
                        {% endif %}
 
