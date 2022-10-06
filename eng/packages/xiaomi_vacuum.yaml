@@ -381,23 +381,23 @@ xiaomi_vacuum:
       name: 'Silent mode'
       icon: 'mdi:volume-off'
     vacuum_room1:
+      name: 'Hallway'
+      icon: 'mdi:mirror'
+    vacuum_room2:
       name: 'Hall'
       icon: 'mdi:sofa'
-    vacuum_room2:
-      name: 'Corridor'
-      icon: 'mdi:doorbell'
     vacuum_room3:
-      name: 'Children'
-      icon: 'mdi:desktop-classic'
+      name: 'Bedroom'
+      icon: 'mdi:bed'
     vacuum_room4:
       name: 'Kitchen'
       icon: 'mdi:silverware-variant'
     vacuum_room5:
-      name: 'Hallway'
-      icon: 'mdi:mirror'
-    vacuum_room8:
-      name: 'Bedroom'
-      icon: 'mdi:bed'
+      name: 'Children'
+      icon: 'mdi:desktop-classic'
+    vacuum_room6:
+      name: 'Corridor'
+      icon: 'mdi:doorbell'
 
   input_number:
     vacuum_volume:
@@ -913,7 +913,6 @@ xiaomi_vacuum:
             value: "0"
 
   script:
-    # download a map from the cloud
     vacuum_download_map:
       alias: "Download a map from the cloud"
       mode: single
@@ -935,25 +934,78 @@ xiaomi_vacuum:
           data:
             entity_id: camera.xiaomi_cloud_map_extractor
 
-    #cleaning room 1
-    vacuum_room1:
-      alias: "Hall"
+    vacuum_start_clean:
+      alias: "Cleaning rooms according to the list"
+      icon: mdi:delete-sweep-outline
       mode: single
-      icon: mdi:sofa
       sequence:
-        - service: xiaomi_miot.call_action
-          data:
-            entity_id: vacuum.vacuum_cleaner_robot_cleaner
-            did: !secret xiaomi_cloud_did
-            siid: 14
-            aiid: 1
-            params: [2,"{\"mapId\":1626189155,\"segmentId\":[1]}"]
+        - condition: template
+          value_template: |
+            {% if is_state('input_boolean.vacuum_room1','on') or 
+            is_state('input_boolean.vacuum_room2','on') or
+            is_state('input_boolean.vacuum_room3','on') or
+            is_state('input_boolean.vacuum_room4','on') or
+            is_state('input_boolean.vacuum_room5','on') or
+            is_state('input_boolean.vacuum_room6','on')%}True{% else %}False{% endif %}
+        - service: script.turn_on
+          entity_id: script.telegram_send_message
+          data_template:
+            variables:
+              emoji: "\U0001F9F9"
+              message: |
+                {%- set text = '' %}
+                {%- if is_state('input_boolean.vacuum_room1','on') %}{% set text = state_attr('input_boolean.vacuum_room1','friendly_name') %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room2','on') %}
+                  {%- if text != '' %}{% set text = text+',' %}{% endif %}
+                  {% set text = text+state_attr('input_boolean.vacuum_room2','friendly_name') %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room3','on') %}
+                  {%- if text != '' %}{% set text = text+',' %}{% endif %}
+                  {% set text = text+state_attr('input_boolean.vacuum_room3','friendly_name') %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room4','on') %}
+                  {%- if text != '' %}{% set text = text+',' %}{% endif %}
+                  {% set text = text+state_attr('input_boolean.vacuum_room4','friendly_name') %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room5','on') %}
+                  {%- if text != '' %}{% set text = text+',' %}{% endif %}
+                  {% set text = text+state_attr('input_boolean.vacuum_room5','friendly_name') %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room6','on') %}
+                  {%- if text != '' %}{% set text = text+',' %}{% endif %}
+                  {% set text = text+state_attr('input_boolean.vacuum_room6','friendly_name') %}{% endif %}
+                Selected rooms for cleaning: {{text}}
+              target:
+                - !secret telegram_bot_chat_id_sasha
+              sound: "auto"
+        - service: script.turn_on
+          entity_id: script.vacuum_clean_select_room
+          data_template:
+            variables:
+              rooms: |
+                {%- set text = '' -%}
+                {%- if is_state('input_boolean.vacuum_room1','on') %}{%- set text = '1' %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room2','on') %}
+                  {%- if text != '' %}{%- set text = text+',' %}{% endif %}
+                  {%- set text = text+'2' %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room3','on') %}
+                  {%- if text != '' %}{%- set text = text+',' %}{% endif %}
+                  {%- set text = text+'3' %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room4','on') %}
+                  {%- if text != '' %}{%- set text = text+',' %}{% endif %}
+                  {%- set text = text+'4' %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room5','on') %}
+                  {%- if text != '' %}{%- set text = text+',' %}{% endif %}
+                  {%- set text = text+'5' %}{% endif %}
+                {%- if is_state('input_boolean.vacuum_room6','on') %}
+                  {%- if text != '' %}{%- set text = text+',' %}{% endif %}
+                  {%- set text = text+'6' %}{% endif %}
+                {%- set text = '[2,"{\\"mapId\\":1626189155,\\"segmentId\\":[' + text + ']}"]' %}
+                {{text}}
 
-    #cleaning room 2
-    vacuum_room2:
-      alias: "Corridor"
+    vacuum_clean_select_room:
+      alias: 'Cleaning of selected rooms'
       mode: single
-      icon: mdi:doorbell
+      fields:
+        rooms:
+          description: 'Command with room numbers'
+          example: 'Specifies the full cleaning command of the room'
       sequence:
         - service: xiaomi_miot.call_action
           data:
@@ -961,60 +1013,13 @@ xiaomi_vacuum:
             did: !secret xiaomi_cloud_did
             siid: 14
             aiid: 1
-            params: [2,"{\"mapId\":1626189155,\"segmentId\":[2]}"]
+            params: "{{ rooms }}"
 
-    #cleaning room 3
-    vacuum_room3:
-      alias: "Children"
+    vacuum_start_clean_all:
+      alias: "Cleaning the entire apartment"
+      icon: mdi:vacuum-outline
       mode: single
-      icon: mdi:desktop-classic
       sequence:
-        - service: xiaomi_miot.call_action
+        - service: vacuum.start
           data:
             entity_id: vacuum.vacuum_cleaner_robot_cleaner
-            did: !secret xiaomi_cloud_did
-            siid: 14
-            aiid: 1
-            params: [2,"{\"mapId\":1626189155,\"segmentId\":[3]}"]
-
-    #cleaning room 4
-    vacuum_room4:
-      alias: "Kitchen"
-      mode: single
-      icon: mdi:silverware-variant
-      sequence:
-        - service: xiaomi_miot.call_action
-          data:
-            entity_id: vacuum.vacuum_cleaner_robot_cleaner
-            did: !secret xiaomi_cloud_did
-            siid: 14
-            aiid: 1
-            params: [2,"{\"mapId\":1626189155,\"segmentId\":[4]}"]
-
-    #cleaning room 5
-    vacuum_room5:
-      alias: "Hallway"
-      mode: single
-      icon: mdi:mirror
-      sequence:
-        - service: xiaomi_miot.call_action
-          data:
-            entity_id: vacuum.vacuum_cleaner_robot_cleaner
-            did: !secret xiaomi_cloud_did
-            siid: 14
-            aiid: 1
-            params: [2,"{\"mapId\":1626189155,\"segmentId\":[5]}"]
-
-    #cleaning room 8
-    vacuum_room8:
-      alias: "Bedroom"
-      mode: single
-      icon: mdi:bed
-      sequence:
-        - service: xiaomi_miot.call_action
-          data:
-            entity_id: vacuum.vacuum_cleaner_robot_cleaner
-            did: !secret xiaomi_cloud_did
-            siid: 14
-            aiid: 1
-            params: [2,"{\"mapId\":1626189155,\"segmentId\":[8]}"]

@@ -240,14 +240,15 @@
         title: 'Room cleaning'
         show_header_toggle: false
         entities:
-          - entity: script.vacuum_room1
-          - entity: script.vacuum_room2
-          - entity: script.vacuum_room3
-          - entity: script.vacuum_room4
-          - entity: script.vacuum_room5
-         # - entity: script.vacuum_room6
-         # - entity: script.vacuum_room7
-          - entity: script.vacuum_room8
+          - input_boolean.vacuum_room1
+          - input_boolean.vacuum_room2
+          - input_boolean.vacuum_room3
+          - input_boolean.vacuum_room4
+          - input_boolean.vacuum_room5
+          - input_boolean.vacuum_room6
+          - script.vacuum_start_clean
+          - type: divider
+          - script.vacuum_start_clean_all
       - type: entities
         title: 'Vacuum cleaner sensors'
         show_header_toggle: false
