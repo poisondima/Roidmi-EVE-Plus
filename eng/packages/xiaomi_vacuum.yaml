@@ -34,28 +34,28 @@ xiaomi_vacuum:
         friendly_name: 'Water container'
         icon: 'mdi:cup-water'
       sensor.vacuum_cleaner_filter_life_level:
-        friendly_name: 'HEPA filter'
+        friendly_name: 'Percentage left'
         icon: 'mdi:percent-outline'
       sensor.vacuum_cleaner_filter_left_time:
-        friendly_name: 'HEPA filter'
+        friendly_name: 'Time left'
         icon: 'mdi:calendar-clock'
       sensor.vacuum_cleaner_brush_life_level:
-        friendly_name: 'Brush from below'
+        friendly_name: 'Percentage left'
         icon: 'mdi:percent-outline'
       sensor.vacuum_cleaner_brush_left_time:
-        friendly_name: 'Brush from below'
+        friendly_name: 'Time left'
         icon: 'mdi:calendar-clock'
       sensor.vacuum_cleaner_brush_life_level_2:
-        friendly_name: 'Side brush'
+        friendly_name: 'Percentage left'
         icon: 'mdi:percent-outline'
       sensor.vacuum_cleaner_brush_left_time_2:
-        friendly_name: 'Side brush'
+        friendly_name: 'Time left'
         icon: 'mdi:calendar-clock'
       sensor.vacuum_cleaner_brush_life_level_3:
-        friendly_name: 'Sensors'
+        friendly_name: 'Percentage left'
         icon: 'mdi:percent-outline'
       sensor.vacuum_cleaner_brush_left_time_3:
-        friendly_name: 'Sensors'
+        friendly_name: 'Time left'
         icon: 'mdi:calendar-clock'
       sensor.vacuum_cleaning_time:
         friendly_name: 'Time of last harvest'
@@ -495,6 +495,28 @@ xiaomi_vacuum:
             target:
               - !secret telegram_bot_chat_id_poison
               - !secret telegram_bot_chat_id_sasha
+        - condition: template
+          value_template: |
+                {% if states('sensor.vacuum_cleaner_brush_life_level')|int(100) <=5 or 
+                states('sensor.vacuum_cleaner_brush_life_level_2')|int(100) <=5 or 
+                states('sensor.vacuum_cleaner_brush_life_level_3')|int(100) <=5 or 
+                states('sensor.vacuum_cleaner_filter_life_level')|int(100) <=5 %}True{% else %}False{% endif %}
+        - service: script.turn_on
+          entity_id: script.telegram_send_message
+          data:
+            variables:
+              emoji: "\U000026A0"
+              message: |
+                {%- set text = '' %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level')|int(100) <=5 %}{% set text = 'replace the brush at the bottom' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level_2')|int(100) <=5 %}{% set text = 'replace the side brush' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level_3')|int(100) <=5 %}{% set text = 'wipe the sensors' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_filter_life_level')|int(100) <=5 %}{% set text = 'replace the HEPA filter' %}{% endif %}
+                Needed: {{text}}
+              target:
+                - !secret telegram_bot_chat_id_poison
+                - !secret telegram_bot_chat_id_sasha
+              sound: "auto"
 
     # Mistake with the vacuum cleaner
     - alias: 'vacuum_show_error'
@@ -1023,3 +1045,59 @@ xiaomi_vacuum:
         - service: vacuum.start
           data:
             entity_id: vacuum.vacuum_cleaner_robot_cleaner
+
+    vacuum_reset_brush_life_level:
+      alias: "Reset readings"
+      icon: mdi:backup-restore
+      mode: single
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            siid: 11
+            aiid: 1
+            params: []
+            throw: false
+        - delay: '00:20:00'
+
+    vacuum_reset_brush_life_level_2:
+      alias: "Reset readings"
+      icon: mdi:backup-restore
+      mode: single
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            siid: 12
+            aiid: 1
+            params: []
+            throw: false
+        - delay: '00:20:00'
+
+    vacuum_reset_brush_life_level_3:
+      alias: "Reset readings"
+      icon: mdi:backup-restore
+      mode: single
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            siid: 15
+            aiid: 1
+            params: []
+            throw: false
+        - delay: '00:20:00'
+
+    vacuum_reset_filter_life_level:
+      alias: "Reset readings"
+      icon: mdi:backup-restore
+      mode: single
+      sequence:
+        - service: xiaomi_miot.call_action
+          data:
+            entity_id: vacuum.vacuum_cleaner_robot_cleaner
+            siid: 10
+            aiid: 1
+            params: []
+            throw: false
+        - delay: '00:20:00'

@@ -289,11 +289,23 @@
         title: 'Expendable materials'
         show_header_toggle: false
         entities:
+          - type: section
+            label: 'Brush from below'
           - sensor.vacuum_cleaner_brush_life_level
           - sensor.vacuum_cleaner_brush_left_time
+          - script.vacuum_reset_brush_life_level
+          - type: section
+            label: 'Side brush'
           - sensor.vacuum_cleaner_brush_life_level_2
           - sensor.vacuum_cleaner_brush_left_time_2
+          - script.vacuum_reset_brush_life_level_2
+          - type: section
+            label: 'Sensors'
           - sensor.vacuum_cleaner_brush_life_level_3
           - sensor.vacuum_cleaner_brush_left_time_3
+          - script.vacuum_reset_brush_life_level_3
+          - type: section
+            label: 'HEPA filter'
           - sensor.vacuum_cleaner_filter_life_level
           - sensor.vacuum_cleaner_filter_left_time
+          - script.vacuum_reset_filter_life_level
