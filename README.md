@@ -17,5 +17,5 @@ English manual:
 4. In all scripts and lovelace I use name of vacuum cleaner object `vacuum.vacuum_cleaner_robot_cleaner`, you need to **change it with yours**.
 5. Further you can use files for settings from the `eng` folder.
 
-![изображение](https://user-images.githubusercontent.com/39500249/152647370-aa2680e8-c595-42ad-9b83-60ca72444327.png)
+![Roidmi-EVE-Plus_2022-10-06](https://user-images.githubusercontent.com/39500249/194393400-d733bd17-01e7-4614-84f4-5b97113fb6d7.png)
 
