@@ -289,11 +289,24 @@
         title: 'Расходные материалы'
         show_header_toggle: false
         entities:
+          - type: section
+            label: 'Щетка снизу'
           - sensor.vacuum_cleaner_brush_life_level
           - sensor.vacuum_cleaner_brush_left_time
+          - script.vacuum_reset_brush_life_level
+          - type: section
+            label: 'Боковая щетка'
           - sensor.vacuum_cleaner_brush_life_level_2
           - sensor.vacuum_cleaner_brush_left_time_2
+          - script.vacuum_reset_brush_life_level_2
+          - type: section
+            label: 'Датчики'
           - sensor.vacuum_cleaner_brush_life_level_3
           - sensor.vacuum_cleaner_brush_left_time_3
+          - script.vacuum_reset_brush_life_level_3
+          - type: section
+            label: 'Фильтр HEPA'
           - sensor.vacuum_cleaner_filter_life_level
           - sensor.vacuum_cleaner_filter_left_time
+          - script.vacuum_reset_filter_life_level
+
