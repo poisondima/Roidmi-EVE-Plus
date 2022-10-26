@@ -1,0 +1,77 @@
+yandex_station:
+  yandex_station:
+    intents:
+      Убери в коридоре: Слышь робот, давай быстро едь убирай в коридоре
+      Убери в прихожей: Слышь робот, давай быстро едь убирай в прихожей
+      Убери в зале: Слышь робот, давай быстро едь убирай в зале
+      Убери в кабинете: Слышь робот, давай быстро едь убирай в кабинете
+      Убери в спальне: Слышь робот, давай быстро едь убирай в спальне
+      Убери на кухне: Слышь робот, давай быстро едь убирай на кухне
+
+  automation:
+    - alias: yandex_room_cleaner
+      mode: single
+      trigger:
+        # room id 1
+        - platform: event
+          event_type: yandex_intent
+          event_data:
+            text: 'Убери в прихожей'
+          id: 'в прихожей'
+        # room id 2
+        - platform: event
+          event_type: yandex_intent
+          event_data:
+            text: 'Убери в зале'
+          id: 'в зале'
+        # room id 3
+        - platform: event
+          event_type: yandex_intent
+          event_data:
+            text: 'Убери в спальне'
+          id: 'в спальне'
+        # room id 4
+        - platform: event
+          event_type: yandex_intent
+          event_data:
+            text: 'Убери на кухне'
+          id: 'на кухне'
+        # room id 5
+        - platform: event
+          event_type: yandex_intent
+          event_data:
+            text: 'Убери в кабинете'
+          id: 'в кабинете'
+        # room id 6
+        - platform: event
+          event_type: yandex_intent
+          event_data:
+            text: 'Убери в коридоре'
+          id: 'в коридоре'
+      action:
+        - service: script.turn_on
+          entity_id: script.telegram_send_message
+          data_template:
+            variables:
+              emoji: "\U0001F469"
+              message: |
+                {%- set text = trigger.id %}
+                Алиса дала задание убрать {{text}}
+              target:
+                #- !secret telegram_bot_chat_id_poison
+                - !secret telegram_bot_chat_id_sasha
+              sound: "auto"
+        - service: script.turn_on
+          entity_id: script.vacuum_clean_select_room
+          data_template:
+            variables:
+              rooms: |
+                {%- set text = '' -%}
+                {%- if (trigger.id == 'в прихожей') %}{%- set text = '1' %}{% endif %}
+                {%- if (trigger.id == 'в зале') %}{%- set text = '2' %}{% endif %}
+                {%- if (trigger.id == 'в спальне') %}{%- set text = '3' %}{% endif %}
+                {%- if (trigger.id == 'на кухне') %}{%- set text = '4' %}{% endif %}
+                {%- if (trigger.id == 'в кабинете') %}{%- set text = '5' %}{% endif %}
+                {%- if (trigger.id == 'в коридоре') %}{%- set text = '6' %}{% endif %}
+                {%- set text = '[2,"{\\"mapId\\":1661872392,\\"segmentId\\":[' + text + ']}"]' %}
+                {{text}}
