@@ -8,6 +8,12 @@ yandex_station:
       Убери в спальне: Слышь робот, давай быстро едь убирай в спальне
       Убери на кухне: Слышь робот, давай быстро едь убирай на кухне
 
+  yandex_smart_home:
+    filter: # не забудьте добавить другие, важные для вас, устройства
+      include_entities:
+        # этот плеер отвечает за работу `intents`
+        - media_player.yandex_intents
+
   automation:
     - alias: yandex_room_cleaner
       mode: single
