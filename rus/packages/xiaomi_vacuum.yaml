@@ -508,10 +508,10 @@ xiaomi_vacuum:
               emoji: "\U000026A0"
               message: |
                 {%- set text = '' %}
-                {%- if states('sensor.vacuum_cleaner_brush_cleaner_brush_life_level')|int(100) <=5 %}{% set text = 'заменить щетку снизу, осталось ' + states('sensor.vacuum_cleaner_brush_cleaner_brush_life_level') + '%' %}{% endif %}
-                {%- if states('sensor.vacuum_cleaner_brush_cleaner_brush_life_level_2')|int(100) <=5 %}{% set text = 'заменить боковую щетку, осталось ' + states('sensor.vacuum_cleaner_brush_cleaner_brush_life_level_2') + '%' %}{% endif %}
-                {%- if states('sensor.vacuum_cleaner_brush_cleaner_brush_life_level_3')|int(100) <=5 %}{% set text = 'протереть датчики, осталось ' + states('sensor.vacuum_cleaner_brush_cleaner_brush_life_level_3') + '%' %}{% endif %}
-                {%- if states('sensor.vacuum_cleaner_filter_filter_life_level')|int(100) <=5 %}{% set text = 'заменить фильтр HEPA, осталось ' + states('sensor.vacuum_cleaner_filter_filter_life_level') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level')|int(100) <=5 %}{% set text = 'заменить щетку снизу, осталось ' + states('sensor.vacuum_cleaner_brush_life_level') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level_2')|int(100) <=5 %}{% set text = 'заменить боковую щетку, осталось ' + states('sensor.vacuum_cleaner_brush_life_level_2') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level_3')|int(100) <=5 %}{% set text = 'протереть датчики, осталось ' + states('sensor.vacuum_cleaner_brush_life_level_3') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_filter_life_level')|int(100) <=5 %}{% set text = 'заменить фильтр HEPA, осталось ' + states('sensor.vacuum_cleaner_filter_life_level') + '%' %}{% endif %}
                 Необходимо: {{text}} и сбросить счетчик
               target:
                 - !secret telegram_bot_chat_id_poison
