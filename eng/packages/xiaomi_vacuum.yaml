@@ -508,10 +508,10 @@ xiaomi_vacuum:
               emoji: "\U000026A0"
               message: |
                 {%- set text = '' %}
-                {%- if states('sensor.vacuum_cleaner_brush_life_level')|int(100) <=5 %}{% set text = 'replace the brush at the bottom, the only thing left ' + states('sensor.vacuum_cleaner_brush_life_level') + '%' %}{% endif %}
-                {%- if states('sensor.vacuum_cleaner_brush_life_level_2')|int(100) <=5 %}{% set text = 'replace the side brush, the only thing left ' + states('sensor.vacuum_cleaner_brush_life_level_2') + '%' %}{% endif %}
-                {%- if states('sensor.vacuum_cleaner_brush_life_level_3')|int(100) <=5 %}{% set text = 'wipe the sensors, the only thing left ' + states('sensor.vacuum_cleaner_brush_life_level_3') + '%' %}{% endif %}
-                {%- if states('sensor.vacuum_cleaner_filter_life_level')|int(100) <=5 %}{% set text = 'replace the HEPA filter, the only thing left ' + states('sensor.vacuum_cleaner_filter_life_level') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level')|int(100) <=5 %}{% set text = 'replace the brush at the bottom, it has only left ' + states('sensor.vacuum_cleaner_brush_life_level') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level_2')|int(100) <=5 %}{% set text = 'replace the side brush, it has only left ' + states('sensor.vacuum_cleaner_brush_life_level_2') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_brush_life_level_3')|int(100) <=5 %}{% set text = 'wipe the sensors, it has only left ' + states('sensor.vacuum_cleaner_brush_life_level_3') + '%' %}{% endif %}
+                {%- if states('sensor.vacuum_cleaner_filter_life_level')|int(100) <=5 %}{% set text = 'replace the HEPA filter, it has only left ' + states('sensor.vacuum_cleaner_filter_life_level') + '%' %}{% endif %}
                 Needed: {{text}} and reset the counter
               target:
                 - !secret telegram_bot_chat_id_poison
